@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | NETSIM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="login-page">
+
+<header class="navbar">
+    <div class="logo">NET<span>SIM</span></div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="#">Internet Packages</a>
+        <a href="#">Entertainment Services</a>
+    </nav>
+</header>
+
+<section class="login-section">
+    <div class="login-card">
+        <h2>Login</h2>
+        <p class="login-desc">Access your account to purchase services</p>
+
+        <form id="loginForm">
+            <label>Phone Number</label>
+            <input 
+                type="tel" 
+                id="phone"
+                placeholder="Enter your phone number"
+                pattern="[0-9]{10}"
+                required
+            >
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p id="result" style="text-align:center; margin-top:15px;"></p>
+    </div>
+</section>
+
+<footer class="footer">
+    © 2025 NETSIM Network Service Provider
+</footer>
+
+<script type="module" src="login.js"></script>
+</body>
+</html>
