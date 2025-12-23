@@ -190,3 +190,87 @@ html, body {
     padding: 15px;
     margin-top: auto;
 }
+/* ===== ปรับแต่งให้เว็บดูเล็กลงและกระชับ (Compact Design) ===== */
+
+/* 1. ปรับ Navbar ให้เล็กลง */
+.navbar {
+    padding: 10px 25px; /* ลดความหนาของแถบเมนู */
+}
+.logo { font-size: 20px; }
+.navbar nav a { font-size: 14px; margin-left: 15px; }
+
+/* 2. ปรับ Hero Section ให้ไม่สูงเกินไป */
+.hero {
+    min-height: 40vh; /* ลดความสูงลงจาก 60vh */
+    padding: 30px 20px;
+}
+.hero h1 { font-size: 24px; }
+.hero p { font-size: 14px; margin-bottom: 20px; }
+.hero-btn { padding: 10px 25px; font-size: 14px; }
+
+/* 3. ปรับขนาด Section และหัวข้อ */
+.section {
+    padding: 30px 15px; /* ลดพื้นที่ว่างบน-ล่าง */
+}
+.section h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+/* 4. ปรับ Card ให้เล็กลงและดูสะอาดตา */
+.card-container {
+    gap: 15px; /* ลดระยะห่างระหว่างการ์ด */
+}
+
+.card {
+    padding: 20px;
+    border-radius: 10px;
+    border-top: 5px solid #f9c300; /* ลดความหนาเส้นขอบบน */
+}
+
+.card h3 {
+    font-size: 16px; /* หัวข้อเล็กลง */
+    margin-bottom: 8px;
+}
+
+.card p {
+    font-size: 13px; /* เนื้อหาเล็กลง */
+    color: #666;
+}
+
+.price {
+    font-size: 18px; /* ขนาดราคาที่พอดี */
+    margin-top: 10px;
+}
+
+.card button {
+    margin-top: 12px;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 4px; /* เพิ่มความโค้งให้ปุ่มนิดหน่อย */
+}
+
+/* 5. Responsive สำหรับมือถือ (ทำให้การ์ดเล็กลงอีก) */
+@media (max-width: 768px) {
+    .card-container {
+        display: grid;
+        grid-template-columns: 1fr; /* เรียงเดี่ยว */
+        justify-items: center;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 300px; /* จำกัดความกว้างการ์ดไม่ให้ใหญ่เกินไปบนมือถือ */
+        margin-bottom: 10px;
+    }
+
+    .navbar nav {
+        display: flex;
+        gap: 5px;
+    }
+    
+    /* ซ่อนเมนูบางส่วนบนมือถือเพื่อให้ดูไม่รก */
+    .navbar nav a:not(.login-btn) {
+        display: none; 
+    }
+}
