@@ -10,6 +10,12 @@ html, body {
     height: 100%;
 }
 
+/* 🔹 สำคัญมาก: เติมส่วนนี้เพื่อให้ Footer อยู่ล่างสุดเสมอ */
+body {
+    display: flex;
+    flex-direction: column;
+}
+
 /* ===== Navbar ===== */
 .navbar {
     background: #1f1f1f;
@@ -17,11 +23,11 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 40px;
+    padding: 15px 5%; /* ใช้ % ให้ยืดหยุ่น */
 }
 
 .logo {
-    font-size: 24px;
+    font-size: 20px; /* ปรับให้กระชับ */
     font-weight: bold;
     color: #f9c300;
 }
@@ -33,7 +39,8 @@ html, body {
 .navbar nav a {
     color: white;
     text-decoration: none;
-    margin-left: 20px;
+    margin-left: 15px;
+    font-size: 14px;
 }
 
 .login-btn {
@@ -46,7 +53,7 @@ html, body {
 
 /* ===== Hero ===== */
 .hero {
-    min-height: 60vh;
+    min-height: 40vh; /* ลดความสูงลง */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -54,74 +61,91 @@ html, body {
     background: linear-gradient(135deg, #f9c300, #e6ac00);
     color: #1f1f1f;
     text-align: center;
-    padding: 0 20px;
+    padding: 40px 20px;
 }
 
 .hero h1 {
-    font-size: 40px;
-    margin-bottom: 10px;
+    font-size: 24px; 
+    max-width: 800px;
 }
 
 .hero p {
-    font-size: 18px;
-    margin-bottom: 25px;
+    font-size: 14px;
+    margin-bottom: 20px;
 }
 
 .hero-btn {
     background: #1f1f1f;
     color: #f9c300;
-    padding: 12px 25px;
+    padding: 10px 25px;
     text-decoration: none;
     font-weight: bold;
     border-radius: 6px;
+    font-size: 14px;
 }
 
 /* ===== Sections ===== */
 .section {
-    padding: 60px 40px;
+    padding: 30px 15px; /* ลดพื้นที่ว่าง */
     text-align: center;
 }
 
 .section h2 {
-    font-size: 32px;
-    margin-bottom: 40px;
+    font-size: 22px;
+    margin-bottom: 20px;
 }
 
 .gray {
     background: #f7f7f7;
 }
 
-/* ===== Cards ===== */
+/* ===== Cards (Desktop & Global) ===== */
 .card-container {
     display: flex;
     justify-content: center;
-    gap: 30px;
+    gap: 15px;
     flex-wrap: wrap;
+    max-width: 1200px; 
+    margin: 0 auto;
 }
 
 .card {
     background: white;
-    width: 280px;
-    padding: 25px;
+    flex: 1 1 300px; 
+    max-width: 350px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    border-top: 6px solid #f9c300;
+    border-top: 5px solid #f9c300;
+}
+
+.card h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.card p {
+    font-size: 13px;
+    color: #666;
 }
 
 .price {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     color: #e6ac00;
+    margin-top: 10px;
 }
 
 .card button {
-    margin-top: 15px;
+    margin-top: 12px;
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     border: none;
     background: #f9c300;
     font-weight: bold;
     cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
 /* ===== Login Page ===== */
@@ -133,15 +157,17 @@ html, body {
 }
 
 .login-section {
-    flex: 1;
+    flex: 1; /* ดัน Footer ลงล่าง */
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 .login-card {
     background: white;
-    width: 380px;
+    width: 100%;
+    max-width: 380px;
     padding: 35px;
     border-radius: 12px;
     box-shadow: 0 6px 15px rgba(0,0,0,0.15);
@@ -188,69 +214,11 @@ html, body {
     color: white;
     text-align: center;
     padding: 15px;
-    margin-top: auto;
-}
-/* ===== ปรับแต่งให้เว็บดูเล็กลงและกระชับ (Compact Design) ===== */
-
-/* 1. ปรับ Navbar ให้เล็กลง */
-.navbar {
-    padding: 10px 25px; /* ลดความหนาของแถบเมนู */
-}
-.logo { font-size: 20px; }
-.navbar nav a { font-size: 14px; margin-left: 15px; }
-
-/* 2. ปรับ Hero Section ให้ไม่สูงเกินไป */
-.hero {
-    min-height: 40vh; /* ลดความสูงลงจาก 60vh */
-    padding: 30px 20px;
-}
-.hero h1 { font-size: 24px; }
-.hero p { font-size: 14px; margin-bottom: 20px; }
-.hero-btn { padding: 10px 25px; font-size: 14px; }
-
-/* 3. ปรับขนาด Section และหัวข้อ */
-.section {
-    padding: 30px 15px; /* ลดพื้นที่ว่างบน-ล่าง */
-}
-.section h2 {
-    font-size: 22px;
-    margin-bottom: 20px;
+    margin-top: auto; /* ดันตัวเองไปล่างสุดเสมอ */
+    width: 100%;
 }
 
-/* 4. ปรับ Card ให้เล็กลงและดูสะอาดตา */
-.card-container {
-    gap: 15px; /* ลดระยะห่างระหว่างการ์ด */
-}
-
-.card {
-    padding: 20px;
-    border-radius: 10px;
-    border-top: 5px solid #f9c300; /* ลดความหนาเส้นขอบบน */
-}
-
-.card h3 {
-    font-size: 16px; /* หัวข้อเล็กลง */
-    margin-bottom: 8px;
-}
-
-.card p {
-    font-size: 13px; /* เนื้อหาเล็กลง */
-    color: #666;
-}
-
-.price {
-    font-size: 18px; /* ขนาดราคาที่พอดี */
-    margin-top: 10px;
-}
-
-.card button {
-    margin-top: 12px;
-    padding: 8px;
-    font-size: 14px;
-    border-radius: 4px; /* เพิ่มความโค้งให้ปุ่มนิดหน่อย */
-}
-
-/* 5. Responsive สำหรับมือถือ (ทำให้การ์ดเล็กลงอีก) */
+/* ===== Responsive (Mobile) ===== */
 @media (max-width: 768px) {
     .card-container {
         display: grid;
@@ -260,7 +228,7 @@ html, body {
 
     .card {
         width: 100%;
-        max-width: 300px; /* จำกัดความกว้างการ์ดไม่ให้ใหญ่เกินไปบนมือถือ */
+        max-width: 300px;
         margin-bottom: 10px;
     }
 
@@ -269,8 +237,7 @@ html, body {
         gap: 5px;
     }
     
-    /* ซ่อนเมนูบางส่วนบนมือถือเพื่อให้ดูไม่รก */
     .navbar nav a:not(.login-btn) {
-        display: none; 
+        display: none; /* ซ่อนเมนูที่ไม่จำเป็น */
     }
 }
