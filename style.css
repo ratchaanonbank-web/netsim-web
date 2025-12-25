@@ -1,4 +1,4 @@
-/* ===== Reset ===== */
+/* ===== Reset & Base Layout ===== */
 * {
     margin: 0;
     padding: 0;
@@ -10,10 +10,15 @@ html, body {
     height: 100%;
 }
 
-/* 🔹 สำคัญมาก: เติมส่วนนี้เพื่อให้ Footer อยู่ล่างสุดเสมอ */
+/* 🔹 ดัน Footer อยู่ล่างสุดเสมอ */
 body {
     display: flex;
     flex-direction: column;
+}
+
+/* ใช้สำหรับหน้าเนื้อหาหลัก (index, home) เพื่อช่วยดัน footer */
+main {
+    flex: 1;
 }
 
 /* ===== Navbar ===== */
@@ -23,11 +28,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 5%; /* ใช้ % ให้ยืดหยุ่น */
+    padding: 15px 5%;
 }
 
 .logo {
-    font-size: 20px; /* ปรับให้กระชับ */
+    font-size: 20px;
     font-weight: bold;
     color: #f9c300;
 }
@@ -51,9 +56,9 @@ body {
     font-weight: bold;
 }
 
-/* ===== Hero ===== */
+/* ===== Hero Section ===== */
 .hero {
-    min-height: 40vh; /* ลดความสูงลง */
+    min-height: 40vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -74,19 +79,9 @@ body {
     margin-bottom: 20px;
 }
 
-.hero-btn {
-    background: #1f1f1f;
-    color: #f9c300;
-    padding: 10px 25px;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-/* ===== Sections ===== */
+/* ===== Content Sections ===== */
 .section {
-    padding: 30px 15px; /* ลดพื้นที่ว่าง */
+    padding: 30px 15px;
     text-align: center;
 }
 
@@ -99,7 +94,7 @@ body {
     background: #f7f7f7;
 }
 
-/* ===== Cards (Desktop & Global) ===== */
+/* ===== Card System ===== */
 .card-container {
     display: flex;
     justify-content: center;
@@ -119,22 +114,9 @@ body {
     border-top: 5px solid #f9c300;
 }
 
-.card h3 {
-    font-size: 16px;
-    margin-bottom: 8px;
-}
-
-.card p {
-    font-size: 13px;
-    color: #666;
-}
-
-.price {
-    font-size: 18px;
-    font-weight: bold;
-    color: #e6ac00;
-    margin-top: 10px;
-}
+.card h3 { font-size: 16px; margin-bottom: 8px; }
+.card p { font-size: 13px; color: #666; }
+.price { font-size: 18px; font-weight: bold; color: #e6ac00; margin-top: 10px; }
 
 .card button {
     margin-top: 12px;
@@ -148,16 +130,16 @@ body {
     font-size: 14px;
 }
 
-/* ===== Login Page ===== */
+/* ===== Login & Register Page (Shared Design) ===== */
 .login-page {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #f7f7f7;
+    background: #ffffff; /* เปลี่ยนเป็นสีขาวตามรูป UI */
 }
 
 .login-section {
-    flex: 1; /* ดัน Footer ลงล่าง */
+    flex: 1; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -167,45 +149,73 @@ body {
 .login-card {
     background: white;
     width: 100%;
-    max-width: 380px;
+    max-width: 380px; 
     padding: 35px;
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-    border-top: 8px solid #f9c300;
+    /* ลบเงาและเส้นขอบบนออกเพื่อให้เหมือนรูป UI ที่สุด */
+    border-radius: 0;
+    box-shadow: none;
+    border-top: none;
 }
 
-.login-card h2 {
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.login-desc {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #555;
-}
-
-.login-card label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-}
+.login-card h2 { text-align: center; margin-bottom: 10px; }
+.login-desc { text-align: center; margin-bottom: 25px; color: #555; font-size: 14px; }
+.login-card label { font-weight: bold; display: block; margin-bottom: 10px; font-size: 14px; }
 
 .login-card input {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 18px;
-    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px; 
     border: 1px solid #ccc;
+    font-size: 16px;
+    outline: none;
 }
 
 .login-card button {
     width: 100%;
-    padding: 12px;
+    padding: 15px;
     background: #f9c300;
     border: none;
     font-weight: bold;
     cursor: pointer;
+    border-radius: 30px; 
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+
+.divider-container {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 25px 0;
+    color: #555;
+    font-size: 13px;
+}
+
+.divider-container::before,
+.divider-container::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.divider-container:not(:empty)::before { margin-right: 1em; }
+.divider-container:not(:empty)::after { margin-left: 1em; }
+
+/* ⚪ ปุ่ม Create an account (แบบเส้นขอบ) */
+.btn-outline {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid #1f1f1f;
+    border-radius: 30px; /* มนแบบแคปซูล */
+    text-align: center;
+    text-decoration: none;
+    color: #1f1f1f;
+    font-weight: bold;
+    font-size: 16px;
 }
 
 /* ===== Footer ===== */
@@ -214,30 +224,18 @@ body {
     color: white;
     text-align: center;
     padding: 15px;
-    margin-top: auto; /* ดันตัวเองไปล่างสุดเสมอ */
+    margin-top: auto;
     width: 100%;
+    font-size: 13px;
 }
 
 /* ===== Responsive (Mobile) ===== */
 @media (max-width: 768px) {
     .card-container {
         display: grid;
-        grid-template-columns: 1fr; /* เรียงเดี่ยว */
+        grid-template-columns: 1fr;
         justify-items: center;
     }
-
-    .card {
-        width: 100%;
-        max-width: 300px;
-        margin-bottom: 10px;
-    }
-
-    .navbar nav {
-        display: flex;
-        gap: 5px;
-    }
-    
-    .navbar nav a:not(.login-btn) {
-        display: none; /* ซ่อนเมนูที่ไม่จำเป็น */
-    }
+    .card { width: 100%; max-width: 300px; }
+    .navbar nav a:not(.login-btn) { display: none; }
 }
