@@ -2,76 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | NETSIM</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body class="login-page">
 
 <header class="navbar">
-    <div class="logo">NET<span>SIM</span></div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="index.html#packages">Internet Packages</a>
-        <a href="index.html#services">Entertainment Services</a>
-    </nav>
+    <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">NET<span>SIM</span></div>
+    <nav><a href="login.html">Back to Login</a></nav>
 </header>
 
-<section class="login-section">
+<main class="login-section">
     <div class="login-card">
         <h2>Register</h2>
-        <p class="login-desc">Create your NETSIM account</p>
+        <p class="login-desc">Enter your details to join NETSIM</p>
 
-        <form>
+        <form id="registerForm">
             <label>First Name</label>
-            <input 
-                type="text" 
-                placeholder="Enter your first name" 
-                required
-            >
-s
+            <input type="text" id="name" placeholder="Name" required>
+
             <label>Last Name</label>
-            <input 
-                type="text" 
-                placeholder="Enter your last name" 
-                required
-            >
+            <input type="text" id="surname" placeholder="Surname" required>
 
             <label>Phone Number</label>
-            <input 
-                type="tel" 
-                placeholder="Enter your phone number" 
-                pattern="[0-9]{10}"
-                required
-            >
+            <input type="tel" id="phone" placeholder="Enter your phone number" pattern="[0-9]{10}" required>
 
-            <label>Password</label>
-            <input 
-                type="password" 
-                placeholder="Create a password" 
-                required
-            >
-
-            <label>Confirm Password</label>
-            <input 
-                type="password" 
-                placeholder="Confirm your password" 
-                required
-            >
-
-            <button type="submit">Register</button>
+            <button type="submit">Register Now</button>
         </form>
 
-        <p class="register-text">
+        <div class="divider-container">
             Already have an account?
-            <a href="login.html">Login</a>
-        </p>
+        </div>
+
+        <a href="login.html" class="btn-outline">Login</a>
+        
+        <p id="result" ></p>
     </div>
-</section>
+</main>
 
 <footer class="footer">
-    © 2025 NETSIM Network Service Provider
+    <p>© 2025 NETSIM Network Service Provider</p>
 </footer>
 
+<script type="module" src="register.js"></script>
 </body>
 </html>
