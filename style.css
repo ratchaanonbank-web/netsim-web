@@ -74,6 +74,24 @@ main {
     max-width: 800px;
 }
 
+.hero-btn {
+    display: inline-block;
+    padding: 12px 35px;
+    background: #1f1f1f; /* สีเข้มตัดกับพื้นหลังเหลือง */
+    color: white !important;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 30px; /* ทรงแคปซูลเหมือนปุ่ม Login */
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.hero-btn {
+    background: #333;
+    transform: translateY(-2px); /* ลอยขึ้นเล็กน้อยเมื่อชี้ */
+}
+
 .hero p {
     font-size: 14px;
     margin-bottom: 20px;
