@@ -8,24 +8,21 @@
 </head>
 <body>
 
-<!-- ===== Header ===== -->
 <header class="navbar">
-    <div class="logo">NET<span>SIM</span></div>
+    <div class="logo" style="cursor: pointer;">NET<span>SIM</span></div>
     <nav>
         <span id="user-info"></span>
         <a href="#">Internet Packages</a>
         <a href="#">Entertainment Services</a>
-        <a href="#" class="login-btn" onclick="logout()">Logout</a>
+        <a href="javascript:void(0)" class="login-btn" onclick="logout()">Logout</a>
     </nav>
 </header>
 
-<!-- ===== Hero Section ===== -->
 <section class="hero">
     <h1>Welcome to NETSIM</h1>
     <p id="welcome-text"></p>
 </section>
 
-<!-- ===== Internet Packages ===== -->
 <section id="packages" class="section">
     <h2>Internet Packages</h2>
 
@@ -53,31 +50,11 @@
     </div>
 </section>
 
-<!-- ===== Footer ===== -->
 <footer class="footer">
     <p>© 2025 NETSIM Network Service Provider</p>
 </footer>
 
-<script>
-    // ตรวจสอบ Login
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user) {
-        // ถ้ายังไม่ login
-        window.location.href = "login.html";
-    } else {
-        document.getElementById("user-info").innerText =
-            `${user.name} (${user.phone_number})`;
-
-        document.getElementById("welcome-text").innerText =
-            `Hello ${user.name} ${user.surname}, choose the best service for you`;
-    }
-
-    function logout() {
-        localStorage.removeItem("user");
-        window.location.href = "login.html";
-    }
-</script>
+<script src="home.js"></script>
 
 </body>
 </html>
