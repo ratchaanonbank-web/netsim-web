@@ -39,7 +39,7 @@ main {
 .logo {
     font-size: 22px;
     font-weight: bold;
-    color: #f9c300;
+    color: #fdef2e;
 }
 
 .logo span {
@@ -54,11 +54,11 @@ main {
 }
 
 .navbar nav a:hover {
-    color: #f9c300;
+    color: #fdef2e;
 }
 
 .login-btn {
-    background: #f9c300;
+    background: #fdef2e;
     padding: 8px 16px;
     border-radius: 20px;
     color: #1f1f1f !important;
@@ -66,7 +66,7 @@ main {
 }
 
 .login-btn:hover {
-    background: #e6ac00;
+    background: #dfd223;
 }
 
 /* ===== Slideshow (Hero Replacement) ===== */
@@ -99,18 +99,18 @@ main {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: white;
+    color: rgb(0, 0, 0);
     text-align: center;
     text-shadow: 0 2px 10px rgba(0,0,0,0.6);
 }
 
 .slide-text h1 {
-    font-size: 32px;
+    font-size: px;
     margin-bottom: 10px;
 }
 
 .slide-text p {
-    font-size: 16px;
+    font-size: 22px;
 }
 
 .fade {
@@ -147,24 +147,32 @@ main {
 }
 
 .dots {
-    position: absolute;
-    bottom: 20px;
+    position: absolute; 
+    bottom: 20px;  
+    left: 0;
     width: 100%;
+    z-index: 10;  
     text-align: center;
+    pointer-events: none;
 }
 
 .dot {
-    cursor: pointer;
-    height: 10px;
-    width: 10px;
-    margin: 0 4px;
-    background-color: rgba(255,255,255,0.5);
+    width: 12px;
+    height: 12px;
+    margin: 0 6px;
+    background-color: rgba(255, 255, 255, 0.5); 
     border-radius: 50%;
     display: inline-block;
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(0,0,0,0.3); 
+    pointer-events: auto; 
+    transition: all 0.3s ease;
 }
 
 .dot.active {
-    background-color: #f9c300;
+    background-color: #fdef2e;
+    transform: scale(1.3);
+    opacity: 1;
 }
 
 /* ===== Content Sections ===== */
@@ -199,7 +207,7 @@ main {
     padding: 25px;
     border-radius: 15px;
     box-shadow: 0 6px 15px rgba(0,0,0,0.12);
-    border-top: 5px solid #f9c300;
+    border-top: 5px solid #fdef2e;
     cursor: pointer;
 }
 
@@ -221,7 +229,7 @@ main {
 .price {
     font-size: 20px;
     font-weight: bold;
-    color: #e6ac00;
+    color: #dfd223;
     margin-top: 12px;
 }
 
@@ -230,7 +238,7 @@ main {
     width: 100%;
     padding: 10px;
     border: none;
-    background: #f9c300;
+    background: #fdef2e;
     font-weight: bold;
     cursor: pointer;
     border-radius: 6px;
@@ -238,7 +246,7 @@ main {
 }
 
 .card button:hover {
-    background: #e6ac00;
+    background: #dfd223;
 }
 
 /* ===== Login & Register ===== */
@@ -305,14 +313,14 @@ main {
 }
 
 .login-card input:focus {
-    border-color: #f9c300;
+    border-color: #fdef2e;
     box-shadow: 0 0 0 3px rgba(249,195,0,0.25);
 }
 
 .login-card button {
     width: 100%;
     padding: 15px;
-    background: #f9c300;
+    background: #fdef2e;
     border: none;
     font-weight: bold;
     cursor: pointer;
@@ -321,7 +329,7 @@ main {
 }
 
 .login-card button:hover {
-    background: #e6ac00;
+    background: #dfd223;
     transform: translateY(-2px);
 }
 
@@ -397,3 +405,6 @@ main {
     .card { width: 100%; max-width: 300px; }
     .navbar nav a:not(.login-btn) { display: none; }
 }
+
+
+
