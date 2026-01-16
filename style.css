@@ -6,10 +6,6 @@
     font-family: Arial, sans-serif;
 }
 
-html, body {
-    height: 100%;
-}
-
 /* ===== Smooth Global Transition ===== */
 a, button, input, .card {
     transition: all 0.25s ease;
