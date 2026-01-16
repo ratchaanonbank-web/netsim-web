@@ -6,41 +6,52 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const form = document.getElementById("loginForm");
-const result = document.getElementById("result");
+const phoneInput = document.getElementById("phone");
+
+function showError(input, message) {
+    input.classList.add("input-error");
+
+    let error = input.nextElementSibling;
+    if (!error || !error.classList.contains("error-text")) {
+        error = document.createElement("div");
+        error.className = "error-text";
+        input.after(error);
+    }
+    error.textContent = message;
+}
+
+function clearError(input) {
+    input.classList.remove("input-error");
+    let error = input.nextElementSibling;
+    if (error && error.classList.contains("error-text")) {
+        error.remove();
+    }
+}
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    console.log("Login attempt started...");
 
-    const phone = document.getElementById("phone").value;
+    clearError(phoneInput);
 
-    try {
-        const { data, error } = await supabase
-            .from("users")
-            .select("*")
-            .eq("phone_number", phone)
-            .maybeSingle(); 
+    const phoneRegex = /^[0-9]{10}$/;
+    const phone = phoneInput.value.trim();
 
-        if (error) throw error;
-
-        if (!data) {
-            result.style.color = "red";
-            result.textContent = "❌ Phone number not found";
-            return;
-        }
-
-        localStorage.setItem("user", JSON.stringify(data));
-        
-        result.style.color = "green";
-        result.textContent = `✅ Welcome ${data.name}`;
-        
-        setTimeout(() => {
-            window.location.href = "home.html";
-        }, 1000);
-
-    } catch (err) {
-        console.error("Error:", err.message);
-        result.style.color = "red";
-        result.textContent = "❌ Error: " + err.message;
+    if (!phoneRegex.test(phone)) {
+        showError(phoneInput, "Please enter a 10-digit phone number");
+        return;
     }
+
+    const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("phone_number", phone)
+        .maybeSingle();
+
+    if (!data) {
+        showError(phoneInput, "Phone number not found");
+        return;
+    }
+
+    localStorage.setItem("user", JSON.stringify(data));
+    window.location.href = "home.html";
 });
