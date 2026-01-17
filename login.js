@@ -44,7 +44,7 @@ form.addEventListener("submit", async (e) => {
     const { data } = await supabase
         .from("users")
         .select("*")
-        .eq("phone_number", phone)
+        .eq("phonenumber", phone)
         .maybeSingle();
 
     if (!data) {
