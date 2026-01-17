@@ -78,8 +78,8 @@ form.addEventListener("submit", async (e) => {
 
         const { data: existing } = await supabase
             .from("users")
-            .select("phone_number")
-            .eq("phone_number", phone)
+            .select("phonenumber")
+            .eq("phonenumber", phone)
             .maybeSingle();
 
         if (existing) {
@@ -101,10 +101,10 @@ form.addEventListener("submit", async (e) => {
         const randomUserId = Math.floor(10000 + Math.random() * 90000);
 
         await supabase.from("users").insert([{
-            user_id: randomUserId,
+            userid: randomUserId,
             name: nameInput.value.trim(),
             surname: surnameInput.value.trim(),
-            phone_number: phoneInput.value.trim(),
+            phonenumber: phoneInput.value.trim(),
             email: emailInput.value.trim(),
             password: passwordInput.value.trim()
         }]);
