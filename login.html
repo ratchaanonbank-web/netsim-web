@@ -11,14 +11,20 @@
 
     <body class="login-page">
 
-    <header class="navbar">
-        <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">NET<span>SIM</span></div>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="#">Internet Packages</a>
-            <a href="#">Entertainment Services</a>
-        </nav>
-    </header>
+<header class="navbar">
+    <div class="logo" onclick="window.location.href='index.html'">
+        NET<span>SIM</span>
+    </div>
+
+    <button class="openbtn" onclick="openNav()">☰</button>
+
+    <div id="mySidepanel" class="sidepanel">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        <a href="#packages">Internet Packages</a>
+        <a href="#services">Entertainment Services</a>
+        <a href="index.html" class="login-btn">Home</a>
+    </div>
+</header>
 
     <section class="login-section">
         <div class="login-card">
@@ -36,12 +42,13 @@
         >
         <button type="submit" class="btn-login-main">Login</button>
     </form>
-
             <div class="divider-container">If you don't have an account</div>
             <a href="register.html" class="btn-outline">Create an account</a>
-
             <p id="result" ></p>
 
+            <div class="divider-container">or</div>
+            <a href="login-g.html" id="loginEmailBtn" class="btn-outline">Login with Email</a>
+    
             <script type="module" src="login.js"></script>
         </div>
         </div>
@@ -52,5 +59,6 @@
     </footer>
 
     <script type="module" src="login.js"></script>
+    <script src="HB.js"></script>
     </body>
     </html>
