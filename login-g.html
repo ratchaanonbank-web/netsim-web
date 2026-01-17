@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login with Email | NETSIM</title>
+    <link rel="icon" type="image/x-icon" href="img/LogoS.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="login-page">
+
+<header class="navbar">
+    <div class="logo" onclick="window.location.href='index.html'">
+        NET<span>SIM</span>
+    </div>
+    <button class="openbtn" onclick="openNav()">☰</button>
+</header>
+
+<section class="login-section">
+    <div class="login-card">
+        <h2>Login with Email</h2>
+        <p class="login-desc">Access your account using email</p>
+
+        <form id="emailLoginForm" novalidate>
+
+            <label>Email</label>
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                required
+            >
+
+            <label>Password</label>
+              <input
+                  type="password"
+                  id="password"
+                  placeholder="Enter your password"
+                required
+            >
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="divider-container">If you don't have an account</div>
+            <a href="register.html" class="btn-outline">Create an account</a>
+            <p id="result" ></p>
+
+        <div class="divider-container">or</div>
+        <a href="login.html" class="btn-outline">
+            Login with Phone
+        </a>
+
+        <p id="result"></p>
+    </div>
+</section>
+
+<footer class="footer">
+    © 2025 NETSIM Network Service Provider
+</footer>
+
+<script type="module" src="login-g.js"></script>
+<script src="HB.js"></script>
+
+</body>
+</html>
