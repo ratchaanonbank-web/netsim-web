@@ -414,6 +414,7 @@ main {
 }
 /* The sidepanel menu */
 .sidepanel {
+
     height: 100%;
     width: 0;
     position: fixed;
@@ -483,4 +484,174 @@ main {
     background: rgba(255,255,255,0.15);
 }
 
+/* ===== Profile Button ===== */
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #fdef2e;
+    transition: all 0.3s ease;
+}
+
+.profile-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 3px rgba(253, 239, 46, 0.4);
+}
+
+/* ===== Edit Profile ===== */
+.profile-edit-img {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-edit-img img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fdef2e;
+    margin-bottom: 10px;
+}
+
+.profile-edit-img input {
+    display: block;
+    margin: 0 auto;
+}
+
+/* ===== Profile Page ===== */
+.profile-avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 4px solid #fdef2e;
+    object-fit: cover;
+    background: white;
+    box-shadow: 0 0 0 6px rgba(253,239,46,0.25);
+    transition: 0.3s;
+}
+
+.profile-card {
+    text-align: center;
+}
+
+.profile-edit-img img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #fdef2e;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+/* ===== Fancy Profile Design ===== */
+.fancy-profile {
+    background: linear-gradient(180deg, #ffffff, #fffef2);
+    border-radius: 22px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    padding: 40px 30px;
+    max-width: 420px;
+}
+
+/* Avatar Glow */
+.profile-avatar-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 10px rgba(253,239,46,0.35);
+}
+
+/* Name */
+.profile-name {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Email */
+.profile-email {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 15px;
+}
+
+/* Info Box */
+.profile-info {
+    background: #fff;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 0 0 1px #eee;
+    font-size: 14px;
+}
+
+/* Main Button */
+.profile-main-btn {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fdef2e, #ffe600);
+    border: none;
+    border-radius: 35px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.18);
+}
+
+.profile-main-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .fancy-profile {
+        padding: 30px 20px;
+    }
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-wrapper i {
+  position: absolute;
+  right: 12px;
+  top: 35%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #777;
+}
+
+.password-wrapper i:hover {
+  color: #f5c400;
+}
 
