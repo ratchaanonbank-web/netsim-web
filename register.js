@@ -1,10 +1,11 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+/* ===== Supabase ===== */
 const SUPABASE_URL = "https://mdwdzmkgehxwqotczmhh.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kd2R6bWtnZWh4d3FvdGN6bWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0ODg5MjksImV4cCI6MjA4MjA2NDkyOX0.lthMFiCQjq6ufGBkk0qs3nET6V3WTdprIZZQ4hM4R6M ";
-
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kd2R6bWtnZWh4d3FvdGN6bWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0ODg5MjksImV4cCI6MjA4MjA2NDkyOX0.lthMFiCQjq6ufGBkk0qs3nET6V3WTdprIZZQ4hM4R6M"; // 🔒 ใส่ของคุณเอง
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+/* ===== Form Elements ===== */
 const form = document.getElementById("registerForm");
 
 const nameInput = document.getElementById("name");
@@ -12,106 +13,145 @@ const surnameInput = document.getElementById("surname");
 const phoneInput = document.getElementById("phone");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
+const confirmPasswordInput = document.getElementById("confirmPassword");
 
+/* ===== Eye Toggle (Font Awesome) ===== */
+window.togglePassword = function (inputId, iconEl) {
+  const input = document.getElementById(inputId);
 
+  if (input.type === "password") {
+    input.type = "text";
+    iconEl.classList.remove("fa-eye");
+    iconEl.classList.add("fa-eye-slash");
+  } else {
+    input.type = "password";
+    iconEl.classList.remove("fa-eye-slash");
+    iconEl.classList.add("fa-eye");
+  }
+};
+
+/* ===== Error Helpers ===== */
 function showError(input, message) {
-    input.classList.add("input-error");
+  input.classList.add("input-error");
 
-    let error = input.nextElementSibling;
-    if (!error || !error.classList.contains("error-text")) {
-        error = document.createElement("div");
-        error.className = "error-text";
-        input.after(error);
-    }
-    error.textContent = message;
+  let error = input.nextElementSibling;
+  if (!error || !error.classList.contains("error-text")) {
+    error = document.createElement("div");
+    error.className = "error-text";
+    input.after(error);
+  }
+  error.textContent = message;
 }
 
 function clearError(input) {
-    input.classList.remove("input-error");
-    let error = input.nextElementSibling;
-    if (error && error.classList.contains("error-text")) {
-        error.remove();
-    }
+  input.classList.remove("input-error");
+  const error = input.nextElementSibling;
+  if (error && error.classList.contains("error-text")) {
+    error.remove();
+  }
 }
 
+/* ===== Register Submit ===== */
 form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const englishRegex = /^[A-Za-z]+$/;
-    const phoneRegex = /^[0-9]{10}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const name = nameInput.value.trim();
+  const surname = surnameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  const confirmPassword = confirmPasswordInput.value.trim();
 
-    let hasError = false;
-    const password = passwordInput.value.trim();
+  const englishRegex = /^[A-Za-z]+$/;
+  const phoneRegex = /^[0-9]{10}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^[A-Za-z0-9]+$/;
 
-    [nameInput, surnameInput, phoneInput, emailInput, passwordInput].forEach(clearError);
+  let hasError = false;
 
-    if (!englishRegex.test(nameInput.value.trim())) {
-        showError(nameInput, "Please enter English letters only");
-        hasError = true;
+  [
+    nameInput,
+    surnameInput,
+    phoneInput,
+    emailInput,
+    passwordInput,
+    confirmPasswordInput
+  ].forEach(clearError);
+
+  if (!englishRegex.test(name)) {
+    showError(nameInput, "Name: English letters only");
+    hasError = true;
+  }
+
+  if (!englishRegex.test(surname)) {
+    showError(surnameInput, "Surname: English letters only");
+    hasError = true;
+  }
+
+  if (!phoneRegex.test(phone)) {
+    showError(phoneInput, "Phone must be 10 digits");
+    hasError = true;
+  }
+
+  if (!emailRegex.test(email)) {
+    showError(emailInput, "Invalid email");
+    hasError = true;
+  }
+
+  if (!passwordRegex.test(password)) {
+    showError(passwordInput, "Password: a-z A-Z 0-9 only");
+    hasError = true;
+  }
+
+  if (password.length < 6) {
+    showError(passwordInput, "Password must be at least 6 characters");
+    hasError = true;
+  }
+
+  if (password.length < 6) {
+    showError(confirmPasswordInput, "Password must be at least 6 characters");
+    hasError = true;
+  }
+
+  if (password !== confirmPassword) {
+    showError(confirmPasswordInput, "Passwords do not match");
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  /* ===== Check duplicate user ===== */
+  const { data: exists } = await supabase
+    .from("users")
+    .select("userid")
+    .or(`email.eq.${email},phonenumber.eq.${phone}`)
+    .maybeSingle();
+
+  if (exists) {
+    alert("Email or phone already registered");
+    return;
+  }
+
+  /* ===== Insert User ===== */
+  const userid = Math.floor(10000 + Math.random() * 90000);
+
+  const { error } = await supabase.from("users").insert([
+    {
+      userid,
+      name,
+      surname,
+      phonenumber: phone,
+      email,
+      password,
+      imgprofile: null
     }
+  ]);
 
-    if (!englishRegex.test(surnameInput.value.trim())) {
-        showError(surnameInput, "Please enter English letters only");
-        hasError = true;
-    }
+  if (error) {
+    console.error(error);
+    alert("Register failed");
+    return;
+  }
 
-    if (!phoneRegex.test(phoneInput.value.trim())) {
-        showError(phoneInput, "Please enter a 10-digit phone number");
-        hasError = true;
-    }
-
-    if (!emailRegex.test(emailInput.value.trim())) {
-        showError(emailInput, "Invalid email address");
-        hasError = true;
-    }
-
-    if (password.length < 6) {
-        showError(passwordInput, "Password must be at least 6 characters");
-        hasError = true;
-    }
-
-    if (hasError) return;
-
-    try {
-        const phone = phoneInput.value.trim();
-
-        const { data: existing } = await supabase
-            .from("users")
-            .select("phonenumber")
-            .eq("phonenumber", phone)
-            .maybeSingle();
-
-        if (existing) {
-            showError(phoneInput, "This phone number is already registered");
-            return;
-        }
-
-        const { data: existingEmail } = await supabase
-            .from("users")
-            .select("email")
-            .eq("email", emailInput.value.trim())
-            .maybeSingle();
-
-        if (existingEmail) {
-            showError(emailInput, "This email is already registered");
-            return;
-        }
-
-        const randomUserId = Math.floor(10000 + Math.random() * 90000);
-
-        await supabase.from("users").insert([{
-            userid: randomUserId,
-            name: nameInput.value.trim(),
-            surname: surnameInput.value.trim(),
-            phonenumber: phoneInput.value.trim(),
-            email: emailInput.value.trim(),
-            password: passwordInput.value.trim()
-        }]);
-
-        window.location.href = "login.html";
-
-    } catch (err) {
-        showError(phoneInput, "Something went wrong. Please try again");
-    }
+  window.location.href = "login.html";
 });
