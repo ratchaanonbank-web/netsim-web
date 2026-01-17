@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile | NETSIM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+
+<header class="navbar">
+    <div class="logo" onclick="window.location.href='home.html'">
+        NET<span>SIM</span>
+    </div>
+</header>
+
+<section class="login-section">
+    <div class="login-card">
+
+        <h2>Edit Profile</h2>
+
+        <div class="profile-edit-img">
+            <img id="profilePreview" src="img/P.png">
+            <input type="text" id="imgprofile"
+                   placeholder="Image URL">
+        </div>
+
+        <form id="editProfileForm">
+            <label>First Name</label>
+            <input type="text" id="name" required>
+
+            <label>Last Name</label>
+            <input type="text" id="surname" required>
+
+            <label>Phone Number</label>
+            <input type="text" id="phone" required>
+
+            <label>Email</label>
+            <input type="email" id="email" disabled>
+
+            <button type="submit">Save</button>
+        </form>
+
+    </div>
+</section>
+
+<footer class="footer">
+    © 2025 NETSIM Network Service Provider
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="edit-profile.js"></script>
+</body>
+</html>
