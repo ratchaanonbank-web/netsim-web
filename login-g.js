@@ -13,7 +13,7 @@ function showError(input, message) {
     input.classList.add("input-error");
 
     let error = input.nextElementSibling;
-    if (!error || !error.classList.contains("error-text")) {
+    if (!error || !error.classList.contains("error-text")) {    
         error = document.createElement("div");
         error.className = "error-text";
         input.after(error);
@@ -32,34 +32,38 @@ form.addEventListener("submit", async (e) => {
 
     clearError(emailInput);
     clearError(passwordInput);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    let hasError = false;
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
+    let hasError = false;
 
-    if (!emailRegex.test(emailInput.value.trim())) {
-        showError(emailInput, "Invalid email address");
+    if (!email) {
+        showError(emailInput, "Email is required");
         hasError = true;
     }
 
-    if (password.length < 6) {
-        showError(passwordInput, "Password must be at least 6 characters");
+    if (!password) {
+        showError(passwordInput, "Password is required");
         hasError = true;
     }
 
-    const { data } = await supabase
+    if (hasError) return;
+
+    const { data, error } = await supabase
         .from("users")
         .select("*")
         .eq("email", email)
         .eq("password", password)
-        .maybeSingle();
+        .single();
 
-    if (!data) {
+    if (error || !data) {
         showError(passwordInput, "Email or password is incorrect");
         return;
     }
 
+    // ✅ แก้ตรงนี้ (สำคัญมาก)
     localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("userid", data.userid);
+
     window.location.href = "home.html";
 });
