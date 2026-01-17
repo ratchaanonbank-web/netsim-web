@@ -214,12 +214,12 @@ main {
 }
 
 .card h3 {
-    font-size: 17px;
+    font-size: 21px;
     margin-bottom: 10px;
 }
 
 .card p {
-    font-size: 14px;
+    font-size: 18px;
     color: #666;
 }
 
@@ -239,7 +239,7 @@ main {
     font-weight: bold;
     cursor: pointer;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 18px;
 }
 
 .card button:hover {
@@ -491,13 +491,15 @@ main {
     gap: 12px;
 }
 
+/* ===== Profile Icon (Navbar) ===== */
 .profile-btn {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     overflow: hidden;
     cursor: pointer;
     border: 2px solid #fdef2e;
+    background: #fff;
     transition: all 0.3s ease;
 }
 
@@ -508,9 +510,10 @@ main {
 }
 
 .profile-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 3px rgba(253, 239, 46, 0.4);
+    transform: scale(1.12);
+    box-shadow: 0 0 0 4px rgba(253, 239, 46, 0.35);
 }
+
 
 /* ===== Edit Profile ===== */
 .profile-edit-img {
@@ -654,4 +657,5 @@ main {
 .password-wrapper i:hover {
   color: #f5c400;
 }
+
 
