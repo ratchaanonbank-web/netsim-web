@@ -53,5 +53,6 @@ form.addEventListener("submit", async (e) => {
     }
 
     localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("userid", data.userid);
     window.location.href = "home.html";
 });
