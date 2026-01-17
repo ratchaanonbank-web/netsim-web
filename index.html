@@ -3,65 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login with Email | NETSIM</title>
+    <title>NETSIM | Network Service Provider</title>
     <link rel="icon" type="image/x-icon" href="img/LogoS.png">
     <link rel="stylesheet" href="style.css">
 </head>
-
-<body class="login-page">
+<body>
 
 <header class="navbar">
     <div class="logo" onclick="window.location.href='index.html'">
         NET<span>SIM</span>
     </div>
+
     <button class="openbtn" onclick="openNav()">☰</button>
+
+    <div id="mySidepanel" class="sidepanel">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        <a href="#packages">Internet Packages</a>
+        <a href="#services">Entertainment Services</a>
+        <a href="login.html" class="login-btn">Login</a>
+    </div>
 </header>
 
-<section class="login-section">
-    <div class="login-card">
-        <h2>Login with Email</h2>
-        <p class="login-desc">Access your account using email</p>
 
-        <form id="emailLoginForm" novalidate>
 
-            <label>Email</label>
-            <input
-                type="email"
-                id="email"
-                placeholder="Enter your email"
-                required
-            >
+<!-- ===== Slideshow ===== -->
+<section class="slideshow">
+   <div class="slideshow">
 
-            <label>Password</label>
-            <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                required
-            >
+    <div class="slides active fade">
+        <picture>
+            <source media="(max-width: 768px)" srcset="img/slide1-m.jpg">
+            <img src="img/slide1.jpg" alt="Slide 1">
+        </picture>
+    </div>
 
-            <button type="submit">Login</button>
-        </form>
+    <div class="slides fade">
+        <picture>
+            <source media="(max-width: 768px)" srcset="img/slide2-m.jpg">
+            <img src="img/slide2.jpg" alt="Slide 2">
+        </picture>
+    </div>
 
-        <div class="divider-container">If you don't have an account</div>
-            <a href="register.html" class="btn-outline">Create an account</a>
-            <p id="result" ></p>
+    <div class="slides fade">
+        <picture>
+            <source media="(max-width: 768px)" srcset="img/slide3-m.jpg">
+            <img src="img/slide3.jpg" alt="Slide 3">
+        </picture>
+    </div>
 
-        <div class="divider-container">or</div>
-        <a href="login.html" class="btn-outline">
-            Login with Phone
-        </a>
+</div>
 
-        <p id="result"></p>
+    <a class="prev" onclick="changeSlide(-1)">❮</a>
+    <a class="next" onclick="changeSlide(1)">❯</a>
+
+    <div class="dots">
+        <span class="dot active" onclick="currentSlide(0)"></span>
+        <span class="dot" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+    </div>
+</section>
+
+<section id="packages" class="section">
+    <h2>Internet Packages</h2>
+    <div class="card-container">
+        <div class="card">
+            <h3>Net 5GB 24Hrs</h3>
+            <p>Up to 50 Mbps</p>
+            <p class="price">59 THB / day</p>
+            <a href="login.html"><button>Buy Package</button></a>
+        </div>
+        <div class="card">
+            <h3>Special price! Internet</h3>
+            <p>max speed 40GB</p>
+            <p class="price">110 THB / week</p>
+            <a href="login.html"><button>Buy Package</button></a>
+        </div>
+        <div class="card">
+            <h3>Unlimited internet</h3>
+            <p>speed 20Mbps</p>
+            <p class="price">475 THB / month</p>
+            <a href="login.html"><button>Buy Package</button></a>
+        </div>
+    </div>
+</section>
+
+<section id="services" class="section gray">
+    <h2>Entertainment Services</h2>
+    <div class="card-container">
+        <div class="card">
+            <h3>Movie Pack</h3>
+            <p>Unlimited movies and series</p>
+            <p class="price">99 THB / month</p>
+            <a href="login.html"><button>Subscribe</button></a>
+        </div>
+        <div class="card">
+            <h3>Music Premium</h3>
+            <p>High-quality music with no ads</p>
+            <p class="price">59 THB / month</p>
+            <a href="login.html"><button>Subscribe</button></a>
+        </div>
+        <div class="card">
+            <h3>Gaming Pass</h3>
+            <p>Premium online gaming service</p>
+            <p class="price">129 THB / month</p>
+            <a href="login.html"><button>Subscribe</button></a>
+        </div>
     </div>
 </section>
 
 <footer class="footer">
-    © 2025 NETSIM Network Service Provider
+    <p>© 2025 NETSIM Network Service Provider</p>
 </footer>
 
-<script type="module" src="login-g.js"></script>
-<script src="HB.js"></script>
+<script src="slideshow.js" ></script>
+<script src="HB.js" ></script>
 
 </body>
 </html>
