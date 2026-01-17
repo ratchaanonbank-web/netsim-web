@@ -10,6 +10,9 @@ const form = document.getElementById("registerForm");
 const nameInput = document.getElementById("name");
 const surnameInput = document.getElementById("surname");
 const phoneInput = document.getElementById("phone");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
 
 function showError(input, message) {
     input.classList.add("input-error");
@@ -36,10 +39,12 @@ form.addEventListener("submit", async (e) => {
 
     const englishRegex = /^[A-Za-z]+$/;
     const phoneRegex = /^[0-9]{10}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     let hasError = false;
+    const password = passwordInput.value.trim();
 
-    [nameInput, surnameInput, phoneInput].forEach(clearError);
+    [nameInput, surnameInput, phoneInput, emailInput, passwordInput].forEach(clearError);
 
     if (!englishRegex.test(nameInput.value.trim())) {
         showError(nameInput, "Please enter English letters only");
@@ -53,6 +58,16 @@ form.addEventListener("submit", async (e) => {
 
     if (!phoneRegex.test(phoneInput.value.trim())) {
         showError(phoneInput, "Please enter a 10-digit phone number");
+        hasError = true;
+    }
+
+    if (!emailRegex.test(emailInput.value.trim())) {
+        showError(emailInput, "Invalid email address");
+        hasError = true;
+    }
+
+    if (password.length < 6) {
+        showError(passwordInput, "Password must be at least 6 characters");
         hasError = true;
     }
 
@@ -72,13 +87,26 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
+        const { data: existingEmail } = await supabase
+            .from("users")
+            .select("email")
+            .eq("email", emailInput.value.trim())
+            .maybeSingle();
+
+        if (existingEmail) {
+            showError(emailInput, "This email is already registered");
+            return;
+        }
+
         const randomUserId = Math.floor(10000 + Math.random() * 90000);
 
         await supabase.from("users").insert([{
             user_id: randomUserId,
             name: nameInput.value.trim(),
             surname: surnameInput.value.trim(),
-            phone_number: phone
+            phone_number: phoneInput.value.trim(),
+            email: emailInput.value.trim(),
+            password: passwordInput.value.trim()
         }]);
 
         window.location.href = "login.html";
