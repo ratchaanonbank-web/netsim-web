@@ -30,7 +30,8 @@ form.addEventListener("submit", async (e) => {
     messageBox.textContent = "Password updated successfully";
     messageBox.style.color = "green";
     setTimeout(() => {
-      window.location.href = "login.html";
+      window.location.href = "login-g.html";
     }, 1500);
   }
 });
+
