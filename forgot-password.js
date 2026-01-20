@@ -7,17 +7,30 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const form = document.getElementById("forgotForm");
 const emailInput = document.getElementById("email");
 const messageBox = document.getElementById("message");
+const popupOverlay = document.getElementById("popupOverlay");
+const popupLoading = document.getElementById("popupLoading");
+const popupSuccess = document.getElementById("popupSuccess");
+
+function showLoading() {
+  popupOverlay.classList.remove("hidden");
+  popupLoading.classList.remove("hidden");
+  popupSuccess.classList.add("hidden");
+}
+
+function showSuccess() {
+  popupLoading.classList.add("hidden");
+  popupSuccess.classList.remove("hidden");
+}
+
+window.closePopup = function () {
+  popupOverlay.classList.add("hidden");
+};
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  messageBox.textContent = "";
-
-  if (!emailInput) {
-    console.error("Email input not found");
-    return;
-  }
 
   const email = emailInput.value.trim();
+  messageBox.textContent = "";
 
   if (!email) {
     messageBox.textContent = "Please enter your email";
@@ -25,15 +38,19 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
+
+  showLoading();
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: "https://my-netsim.vercel.app/reset-password.html",
   });
 
   if (error) {
+    popupOverlay.classList.add("hidden");
     messageBox.textContent = error.message;
     messageBox.style.color = "red";
   } else {
-    messageBox.textContent = "Reset link sent to your email";
-    messageBox.style.color = "green";
+
+    showSuccess();
   }
 });
