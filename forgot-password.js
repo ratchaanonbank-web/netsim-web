@@ -55,26 +55,37 @@ form.addEventListener("submit", async (e) => {
 
   clearError(emailInput);
 
-  // ❌ validate email
+  // 1️⃣ format email
   if (!emailRegex.test(email)) {
-    showError(emailInput, "Invalid email address");
+    showError(emailInput, "Invalid email format");
     return;
   }
 
+  // 2️⃣ เช็คว่ามี email ใน table users ไหม
+  const { data: user, error: checkError } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (checkError || !user) {
+    showError(emailInput, "Email not found in system");
+    return;
+  }
+
+  // 3️⃣ ผ่านแล้วค่อยแสดง loading
   showLoading();
 
+  // 4️⃣ ส่ง reset link
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: "https://my-netsim.vercel.app/reset-password.html",
   });
 
-  // ❌ Supabase error (เช่น 46 seconds)
   if (error) {
     popupOverlay.classList.add("hidden");
     showError(emailInput, error.message);
-    return;
+  } else {
+    showSuccess();
   }
-
-  // ✅ success
-  showSuccess();
 });
 
