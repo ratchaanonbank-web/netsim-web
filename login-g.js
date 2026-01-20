@@ -74,8 +74,22 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
-    localStorage.setItem("user", JSON.stringify(data));
-    localStorage.setItem("id", data.id);
+    const userId = data.user.id;
+
+    const { data: profile, error: profileError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+    if (profileError || !profile) {
+    showError(passwordInput, "Profile not found");
+    return;
+    }
+
+localStorage.setItem("user", JSON.stringify(profile));
+localStorage.setItem("id", profile.id);
+
 
     window.location.href = "home.html";
 });
