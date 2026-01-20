@@ -9,6 +9,21 @@ const form = document.getElementById("emailLoginForm");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
+/* ===== Eye Toggle (Font Awesome) ===== */
+window.togglePassword = function (inputId, iconEl) {
+    const input = document.getElementById(inputId);
+
+    if (input.type === "password") {
+        input.type = "text";
+        iconEl.classList.remove("fa-eye");
+        iconEl.classList.add("fa-eye-slash");
+    } else {
+        input.type = "password";
+        iconEl.classList.remove("fa-eye-slash");
+        iconEl.classList.add("fa-eye");
+    }
+};
+
 function showError(input, message) {
     input.classList.add("input-error");
 
@@ -49,21 +64,18 @@ form.addEventListener("submit", async (e) => {
 
     if (hasError) return;
 
-    const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", email)
-        .eq("password", password)
-        .single();
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+        });
 
     if (error || !data) {
         showError(passwordInput, "Email or password is incorrect");
         return;
     }
 
-    // ✅ แก้ตรงนี้ (สำคัญมาก)
     localStorage.setItem("user", JSON.stringify(data));
-    localStorage.setItem("userid", data.userid);
+    localStorage.setItem("id", data.id);
 
     window.location.href = "home.html";
 });
