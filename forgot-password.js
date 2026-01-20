@@ -6,6 +6,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const form = document.getElementById("forgotForm");
 const emailInput = document.getElementById("email");
+const emailError = document.getElementById("emailError");
 const messageBox = document.getElementById("message");
 const popupOverlay = document.getElementById("popupOverlay");
 const popupLoading = document.getElementById("popupLoading");
@@ -18,7 +19,7 @@ function showLoading() {
 }
 
 function showSuccess() {
-  popupLoading.classList.add("hidden");
+  popupLoading.classList.add("hidden"); 
   popupSuccess.classList.remove("hidden");
 }
 
@@ -26,18 +27,47 @@ window.closePopup = function () {
   popupOverlay.classList.add("hidden");
 };
 
+function showError(input, message) {
+  input.classList.add("input-error");
+
+  let error = input.nextElementSibling;
+  if (!error || !error.classList.contains("error-text")) {
+    error = document.createElement("div");
+    error.className = "error-text";
+    input.after(error);
+  }
+  error.textContent = message;
+}
+
+function clearError(input) {
+  input.classList.remove("input-error");
+  const error = input.nextElementSibling;
+  if (error && error.classList.contains("error-text")) {
+    error.remove();
+  }
+}
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const email = emailInput.value.trim();
+    const emailError = emailError.value.trim();
+
   messageBox.textContent = "";
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let hasError = false;
 
-  if (!email) {
-    messageBox.textContent = "Please enter your email";
-    messageBox.style.color = "red";
-    return;
+    clearError(emailInput);
+
+  if (!emailRegex.test(email)) {
+    showError(emailInput, "Invalid email");
+    hasError = true;
   }
-
+  if (error) {
+     showError(error.message);
+    hasError = true;
+  }
+    if (hasError) return;
 
   showLoading();
 
