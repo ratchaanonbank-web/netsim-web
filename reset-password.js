@@ -7,21 +7,63 @@ const supabase = createClient(
 
 const form = document.getElementById("resetForm");
 const passwordInput = document.getElementById("password");
+const confirmPasswordInput = document.getElementById("confirmPassword");
 const messageBox = document.getElementById("message");
+
+function showError(input, message) {
+  input.classList.add("input-error");
+
+  let error = input.nextElementSibling;
+  if (!error || !error.classList.contains("error-text")) {
+    error = document.createElement("div");
+    error.className = "error-text";
+    input.after(error);
+  }
+  error.textContent = message;
+}
+
+function clearError(input) {
+  input.classList.remove("input-error");
+  const error = input.nextElementSibling;
+  if (error && error.classList.contains("error-text")) {
+    error.remove();
+  }
+}
+
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const password = passwordInput.value.trim();
-  if (password.length < 6) {
-    messageBox.textContent = "Password must be at least 6 characters";
-    messageBox.style.color = "red";
-    return;
+  const confirmPassword = confirmPasswordInput.value.trim();
+  const passwordRegex = /^[A-Za-z0-9]+$/;
+  let hasError = false;
+  clearError(passwordInput);
+  clearError(confirmPasswordInput);
+
+  if (!passwordRegex.test(password)) {
+    showError(passwordInput, "Password: a-z A-Z 0-9 only");
+    hasError = true;
   }
 
-  const { error } = await supabase.auth.updateUser({
-    password
-  });
+  if (password.length < 6) {
+    showError(passwordInput, "Password must be at least 6 characters");
+    hasError = true;
+  }
+
+  if (password.length < 6) {
+    showError(confirmPasswordInput, "Password must be at least 6 characters");
+    hasError = true;
+  }
+
+  if (password !== confirmPassword) {
+    showError(confirmPasswordInput, "Passwords do not match");
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  const { error } = await supabase.auth.updateUser({ password });
 
   if (error) {
     messageBox.textContent = error.message;
@@ -30,8 +72,7 @@ form.addEventListener("submit", async (e) => {
     messageBox.textContent = "Password updated successfully";
     messageBox.style.color = "green";
     setTimeout(() => {
-      window.location.href = "login-g.html";
+      window.location.href = "login.html";
     }, 1500);
   }
 });
-
