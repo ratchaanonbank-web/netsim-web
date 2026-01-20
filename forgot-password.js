@@ -1,17 +1,17 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const SUPABASE_URL = "https://mdwdzmkgehxwqotczmhh.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kd2R6bWtnZWh4d3FvdGN6bWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0ODg5MjksImV4cCI6MjA4MjA2NDkyOX0.lthMFiCQjq6ufGBkk0qs3nET6V3WTdprIZZQ4hM4R6M";
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const form = document.getElementById("forgotForm");
 const emailInput = document.getElementById("email");
-const emailError = document.getElementById("emailError");
-const messageBox = document.getElementById("message");
+
 const popupOverlay = document.getElementById("popupOverlay");
 const popupLoading = document.getElementById("popupLoading");
 const popupSuccess = document.getElementById("popupSuccess");
 
+/* ===== Popup ===== */
 function showLoading() {
   popupOverlay.classList.remove("hidden");
   popupLoading.classList.remove("hidden");
@@ -19,7 +19,7 @@ function showLoading() {
 }
 
 function showSuccess() {
-  popupLoading.classList.add("hidden"); 
+  popupLoading.classList.add("hidden");
   popupSuccess.classList.remove("hidden");
 }
 
@@ -27,6 +27,7 @@ window.closePopup = function () {
   popupOverlay.classList.add("hidden");
 };
 
+/* ===== Error helpers ===== */
 function showError(input, message) {
   input.classList.add("input-error");
 
@@ -42,32 +43,23 @@ function showError(input, message) {
 function clearError(input) {
   input.classList.remove("input-error");
   const error = input.nextElementSibling;
-  if (error && error.classList.contains("error-text")) {
-    error.remove();
-  }
+  if (error && error.classList.contains("error-text")) error.remove();
 }
 
+/* ===== Submit ===== */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const email = emailInput.value.trim();
-    const emailError = emailError.value.trim();
-
-  messageBox.textContent = "";
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let hasError = false;
 
-    clearError(emailInput);
+  clearError(emailInput);
 
+  // ❌ validate email
   if (!emailRegex.test(email)) {
-    showError(emailInput, "Invalid email");
-    hasError = true;
+    showError(emailInput, "Invalid email address");
+    return;
   }
-  if (error) {
-     showError(error.message);
-    hasError = true;
-  }
-    if (hasError) return;
 
   showLoading();
 
@@ -75,12 +67,13 @@ form.addEventListener("submit", async (e) => {
     redirectTo: "https://my-netsim.vercel.app/reset-password.html",
   });
 
+  // ❌ Supabase error (เช่น 46 seconds)
   if (error) {
     popupOverlay.classList.add("hidden");
-    messageBox.textContent = error.message;
-    messageBox.style.color = "red";
-  } else {
-
-    showSuccess();
+    showError(emailInput, error.message);
+    return;
   }
+
+  // ✅ success
+  showSuccess();
 });
