@@ -6,9 +6,9 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_KEY
 );
 
-const userid = localStorage.getItem("userid");
+const id = localStorage.getItem("id");
 
-if (!userid) {
+if (!id) {
     alert("Please login");
     window.location.href = "login.html";
 }
@@ -17,7 +17,7 @@ async function loadProfile() {
     const { data, error } = await supabaseClient
         .from("users")
         .select("*")
-        .eq("userid", userid)
+        .eq("id", id)
         .single();
 
     if (error) {
