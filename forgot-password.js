@@ -6,11 +6,12 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const form = document.getElementById("forgotForm");
 const emailInput = document.getElementById("email");
-const messageBox = document.getElementById("message");
+
 const popupOverlay = document.getElementById("popupOverlay");
 const popupLoading = document.getElementById("popupLoading");
 const popupSuccess = document.getElementById("popupSuccess");
 
+/* ===== Popup ===== */
 function showLoading() {
   popupOverlay.classList.remove("hidden");
   popupLoading.classList.remove("hidden");
@@ -26,31 +27,54 @@ window.closePopup = function () {
   popupOverlay.classList.add("hidden");
 };
 
+/* ===== Error helpers ===== */
+function showError(input, message) {
+  input.classList.add("input-error");
+
+  let error = input.nextElementSibling;
+  if (!error || !error.classList.contains("error-text")) {
+    error = document.createElement("div");
+    error.className = "error-text";
+    input.after(error);
+  }
+  error.textContent = message;
+}
+
+function clearError(input) {
+  input.classList.remove("input-error");
+  const error = input.nextElementSibling;
+  if (error && error.classList.contains("error-text")) error.remove();
+}
+
+/* ===== Submit ===== */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const email = emailInput.value.trim();
-  messageBox.textContent = "";
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!email) {
-    messageBox.textContent = "Please enter your email";
-    messageBox.style.color = "red";
+  clearError(emailInput);
+
+  // ❌ validate email
+  if (!emailRegex.test(email)) {
+    showError(emailInput, "Invalid email address");
     return;
   }
 
-  // 🔄 แสดง popup โหลด
   showLoading();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: "https://my-netsim.vercel.app/reset-password.html",
   });
 
+  // ❌ Supabase error (เช่น 46 seconds)
   if (error) {
     popupOverlay.classList.add("hidden");
-    messageBox.textContent = error.message;
-    messageBox.style.color = "red";
-  } else {
-    // ✅ ส่งสำเร็จ
-    showSuccess();
+    showError(emailInput, error.message);
+    return;
   }
+
+  // ✅ success
+  showSuccess();
 });
+
