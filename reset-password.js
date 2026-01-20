@@ -10,6 +10,20 @@ const passwordInput = document.getElementById("password");
 const confirmPasswordInput = document.getElementById("confirmPassword");
 const messageBox = document.getElementById("message");
 
+window.togglePassword = function (inputId, iconEl) {
+  const input = document.getElementById(inputId);
+
+  if (input.type === "password") {
+    input.type = "text";
+    iconEl.classList.remove("fa-eye");
+    iconEl.classList.add("fa-eye-slash");
+  } else {
+    input.type = "password";
+    iconEl.classList.remove("fa-eye-slash");
+    iconEl.classList.add("fa-eye");
+  }
+};
+
 function showError(input, message) {
   input.classList.add("input-error");
 
