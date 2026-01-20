@@ -6,7 +6,7 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_KEY
 );
 
-const userid = localStorage.getItem("userid");
+const id = localStorage.getItem("id");
 
 const nameInput = document.getElementById("name");
 const surnameInput = document.getElementById("surname");
@@ -19,7 +19,7 @@ async function loadProfile() {
     const { data } = await supabaseClient
         .from("users")
         .select("*")
-        .eq("userid", userid)
+        .eq("id", id)
         .single();
 
     if (!data) return;
@@ -49,7 +49,7 @@ document.getElementById("editProfileForm").addEventListener("submit", async (e) 
             phonenumber: phoneInput.value.trim(),
             imgprofile: imgInput.value.trim()
         })
-        .eq("userid", userid);
+        .eq("id", id);
 
     if (error) {
         alert("Update failed");
