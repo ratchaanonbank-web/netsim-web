@@ -251,7 +251,7 @@ main {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #ffffff;
+    background: linear-gradient(#b6b608, #8c7f7f);
 }
 
 .login-section {
