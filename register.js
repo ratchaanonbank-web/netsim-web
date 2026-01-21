@@ -121,37 +121,54 @@ form.addEventListener("submit", async (e) => {
   if (hasError) return;
 
   /* ===== Check duplicate user ===== */
-  const { data: exists } = await supabase
-    .from("users")
-    .select("userid")
-    .or(`email.eq.${email},phonenumber.eq.${phone}`)
-    .maybeSingle();
+ const { data: emailCheck } = await supabase
+  .from("users")
+  .select("id")
+  .eq("email", email)
+  .maybeSingle();
 
-  if (exists) {
-    alert("Email or phone already registered");
-    return;
-  }
+if (emailCheck) {
+  alert("Email already registered");
+  return;
+}
+
 
   /* ===== Insert User ===== */
-  const userid = Math.floor(10000 + Math.random() * 90000);
+// สมัคร Auth ก่อน
+const { data, error: signUpError } = await supabase.auth.signUp({
+  email,
+  password
+});
 
-  const { error } = await supabase.from("users").insert([
-    {
-      userid,
-      name,
-      surname,
-      phonenumber: phone,
-      email,
-      password,
-      imgprofile: null
-    }
-  ]);
+if (signUpError) {
+  alert(signUpError.message);
+  return;
+}
 
-  if (error) {
-    console.error(error);
-    alert("Register failed");
-    return;
+const user = data.user;
+
+if (!user) {
+  alert("Register failed");
+  return;
+}
+
+
+const { error } = await supabase.from("users").insert([
+  {
+    id: user.id,              // 🔑 ใช้ auth.users.id
+    name,
+    surname,
+    phonenumber: phone,
+    email,
+    imgprofile: null
   }
+]);
+
+if (error) {
+  console.error(error);
+  alert("Register failed");
+  return;
+}
 
   window.location.href = "login.html";
 });
