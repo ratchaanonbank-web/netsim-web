@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP | NETSIM</title>
+    <link rel="icon" type="image/x-icon" href="img/LogoS.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+
+<main class="login-section">
+  <div class="login-card">
+    <h2>OTP Verification</h2>
+    <p class="login-desc">
+      Please enter the 6-digit code sent to<br>
+      <strong id="phoneText"></strong>
+    </p>
+
+    <input
+      type="text"
+      id="otp"
+      placeholder="Enter 6-digit OTP"
+      maxlength="6"
+    >
+    <p id="errorMsg" class="error-text"></p>
+    
+    <button id="confirmOtpBtn" class="btn-login-main">Verify & Proceed</button>
+    
+    <div class="divider-container">Didn't receive the code?</div>
+    <button class="btn-outline" id="resendBtn">Resend OTP</button>
+  </div>
+</main>
+
+<script type="module" src="otp.js"></script>
+</body>
+</html>
