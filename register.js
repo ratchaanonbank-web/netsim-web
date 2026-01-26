@@ -120,37 +120,49 @@ form.addEventListener("submit", async (e) => {
 
   if (hasError) return;
 
-  /* ===== Check duplicate user ===== */
- const { data: emailCheck } = await supabase
-  .from("users")
-  .select("id")
-  .eq("email", email)
-  .maybeSingle();
+  /* ===== Check phone duplicate ===== */
+  const { data: phoneCheck } = await supabase
+    .from("users")
+    .select("id")
+    .eq("phonenumber", phone)
+    .maybeSingle();
 
-if (emailCheck) {
-  alert("Email already registered");
-  return;
-}
+  if (phoneCheck) {
+    showError(phoneInput, "This phone number is already registered");
+    hasError = true;
+  }
 
+  /* ===== Check email duplicate ===== */
+  const { data: emailCheck } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
 
-  /* ===== Insert User ===== */
-// สมัคร Auth ก่อน
-const { data, error: signUpError } = await supabase.auth.signUp({
-  email,
-  password
-});
+  if (emailCheck) {
+    showError(emailInput, "This email is already registered");
+    hasError = true;
+  }
 
-if (signUpError) {
-  alert(signUpError.message);
-  return;
-}
+  /* ===== Stop if any error ===== */
+  if (hasError) return;
+  // สมัคร Auth ก่อน
+  const { data, error: signUpError } = await supabase.auth.signUp({
+    email,
+    password
+  });
 
-const user = data.user;
+  if (signUpError) {
+    alert(signUpError.message);
+    return;
+  }
 
-if (!user) {
-  alert("Register failed");
-  return;
-}
+  const user = data.user;
+
+  if (!user) {
+    alert("Register failed");
+    return;
+  }
 
 
 const { error } = await supabase.from("users").insert([
