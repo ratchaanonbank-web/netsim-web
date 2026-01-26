@@ -100,7 +100,15 @@
 <footer class="footer">
     <p>© 2025 NETSIM Network Service Provider</p>
 </footer>
-
+<script>
+    (function() {
+        const user = localStorage.getItem("user");
+        if (!user) {
+            // ใช้ replace เพื่อไม่ให้ผู้ใช้กด Back กลับมาหน้านี้ได้
+            window.location.replace("login.html");
+        }
+    })();
+</script>
 <script src="home.js"></script>
 <script src="HB.js"></script>   
 <script src="slideshow.js"></script>
