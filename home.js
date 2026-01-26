@@ -4,14 +4,18 @@ function checkAuth() {
 
     if (!user) {
         window.location.replace("login.html");
-        return; 
-    } 
+        return;
+    }
 
-    // ✅ ถ้ามี user จริง ถึงจะยอมให้เห็นเนื้อหาในหน้า
+    // ✅ ถ้ามี User จริง ให้เปิดการมองเห็นของหน้าจอ
     document.body.style.visibility = "visible";
 
-    // แสดงผลข้อมูลตามปกติ
+    // อัปเดตข้อมูลบนหน้าจอ (ตรวจสอบชื่อคอลัมน์ให้ตรงกับ Supabase ของคุณ)
     const userInfo = document.getElementById("user-info");
+    if (userInfo) {
+        // ใน Supabase ของคุณใช้ phonenumber (ไม่มีขีดล่าง)
+        userInfo.innerText = `${user.name} (${user.phonenumber || user.phone_number})`;
+    }
     const welcomeText = document.getElementById("welcome-text");
     const profileName = document.getElementById("profileName");
     const profileEmail = document.getElementById("profileEmail");
