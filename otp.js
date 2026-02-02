@@ -81,7 +81,7 @@ confirmBtn.addEventListener("click", async () => {
         await supabase.from("otp_codes").update({ is_used: true }).eq("otp_id", otpData.otp_id);
 
         // ใช้ replace เพื่อไม่ให้กดย้อนกลับมาได้
-        window.location.replace("home.html");
+        window.location.replace("/home");
     }
 });
 
@@ -118,4 +118,5 @@ function startTimer(seconds) {
             timeLeft--;
         }
     }, 1000);
+
 }
