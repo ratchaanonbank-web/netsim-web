@@ -6,6 +6,13 @@
     <title>NETSIM | Home</title>
     <link rel="icon" type="image/x-icon" href="img/LogoS.png">
     <link rel="stylesheet" href="style.css">
+    <script>
+        (function() {
+            if (!localStorage.getItem("user")) {
+                window.location.replace("login.html");
+            }
+        })();
+    </script>
 </head>
 <body>
 
@@ -29,6 +36,7 @@
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
         <a href="#packages">Internet Packages</a>
         <a href="#services">Entertainment Services</a>
+        <a href="usage.html">Bills and Usage</a>
         <a href="javascript:void(0)" class="login-btn" onclick="logout()">Logout</a>
     </div>
 </header>
@@ -72,35 +80,34 @@
 
 <section id="packages" class="section">
     <h2>Internet Packages</h2>
+    <div class="card-container" id="internet-packages"></div>
+</section>
 
-    <div class="card-container">
-        <div class="card">
-            <h3>Net 5GB 24Hrs</h3>
-            <p>Up to 50 Mbps</p>
-            <p class="price">59 THB / day</p>
-            <button>Buy Package</button>
-        </div>
 
-        <div class="card">
-            <h3>Special price! Internet</h3>
-            <p>max speed 40GB</p>
-            <p class="price">110 THB / week</p>
-            <button>Buy Package</button>
-        </div>
+<section id="services" class="section gray">
+    <h2>Entertainment Services</h2>
+    <div class="card-container" id="entertainment-services"></div>
+</section>
 
-        <div class="card">
-            <h3>Unlimited internet</h3>
-            <p>speed 20Mbps</p>
-            <p class="price">475 THB / month</p>
-            <button>Buy Package</button>
+<div id="purchaseModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>Confirm Purchase</h2>
+        <hr>
+        <div id="modalDetails" class="modal-body"></div> 
+        
+        <div class="modal-footer">
+            <button class="btn-outline" onclick="closePurchaseModal()">Cancel</button>
+            <button id="confirmPurchaseBtn" class="btn-login-main">Confirm Buy</button>
         </div>
     </div>
-</section>
+</div>
 
 <footer class="footer">
     <p>© 2025 NETSIM Network Service Provider</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.1.0/dist/umd/supabase.js"></script>
+<script src="packages-h.js"></script>
 <script src="home.js"></script>
 <script src="HB.js"></script>   
 <script src="slideshow.js"></script>
