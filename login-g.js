@@ -94,5 +94,5 @@
     localStorage.setItem("id", profile.id);
 
 
-        window.location.href = "home.html";
+        window.location.href = "/home";
     });
