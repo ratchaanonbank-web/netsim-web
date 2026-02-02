@@ -14,6 +14,7 @@ if (!id) {
 }
 
 async function loadProfile() {
+    console.log("Loading profile for ID:", id); // เช็คใน Console ว่า ID มาไหม
     const { data, error } = await supabaseClient
         .from("users")
         .select("*")
@@ -21,20 +22,25 @@ async function loadProfile() {
         .single();
 
     if (error) {
-        console.error(error);
+        console.error("Error fetching data:", error);
         return;
     }
 
-    document.getElementById("profileName").textContent =
-        data.name + " " + data.surname;
+    if (data) {
+        // อัปเดตทุกจุดที่มี ID นี้ (ป้องกันเรื่อง ID ซ้ำ)
+        const nameElements = document.querySelectorAll("#profileName");
+        nameElements.forEach(el => el.textContent = `${data.name} ${data.surname}`);
 
-    document.getElementById("profileEmail").textContent = data.email;
+        const emailElements = document.querySelectorAll("#profileEmail");
+        emailElements.forEach(el => el.textContent = data.email);
 
-    document.getElementById("profilePhone").textContent =
-        "Phone: " + data.phonenumber;
+        const phoneElement = document.getElementById("profilePhone");
+        if(phoneElement) phoneElement.innerHTML = `<strong>Phone:</strong> ${data.phonenumber || data.phone_number || '-'}`;
 
-    document.getElementById("profileImage").src =
-        data.imgprofile || "img/P.png";
+        const imgElements = document.querySelectorAll("#profileImage");
+        imgElements.forEach(el => el.src = data.imgprofile || "img/P.png");
+    }
 }
 
+// ห้ามลืมเรียกใช้งาน!
 loadProfile();
