@@ -11,8 +11,6 @@
     const form = document.getElementById("emailLoginForm");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
-
-    /* ===== Eye Toggle (Font Awesome) ===== */
     window.togglePassword = function (inputId, iconEl) {
         const input = document.getElementById(inputId);
 
@@ -94,5 +92,5 @@
     localStorage.setItem("id", profile.id);
 
 
-        window.location.href = "/home";
+        window.location.href = "home.html";
     });
