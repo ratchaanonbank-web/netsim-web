@@ -90,12 +90,10 @@ async function loadEntertainmentServices() {
             .maybeSingle();
 
         const price = priceData ? priceData.price : "N/A";
-        let icon = svc.service_type === "Movie" ? "🎬" : svc.service_type === "Music" ? "🎵" : "🎮";
 
         html += `
             <div class="card">
-                <h3>${icon} ${svc.service_name}</h3>
-                <p><strong>Type:</strong> ${svc.service_type}</p>
+                <h3>${svc.service_name}</h3>
                 <p><strong>Duration:</strong> ${svc.service_life} Days</p>
                 <p class="price">${price} THB</p>
                 <button onclick="location.href='login.html'">Subscribe</button>
@@ -106,5 +104,4 @@ async function loadEntertainmentServices() {
 }
 
 // เรียกใช้งานเมื่อโหลดหน้าเสร็จ
-
 document.addEventListener("DOMContentLoaded", loadAllData);
