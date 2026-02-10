@@ -3,15 +3,13 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = "https://mdwdzmkgehxwqotczmhh.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kd2R6bWtnZWh4d3FvdGN6bWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0ODg5MjksImV4cCI6MjA4MjA2NDkyOX0.lthMFiCQjq6ufGBkk0qs3nET6V3WTdprIZZQ4hM4R6M";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+    
 const userId = localStorage.getItem("temp_user_id");
 const isAlreadyLoggedIn = localStorage.getItem("user");
 
 if (isAlreadyLoggedIn) {
     window.location.replace("home.html");
-}
-
-if (!userId) {
+} else if (!userId) {
     window.location.replace("login.html");
 }
 
@@ -64,28 +62,21 @@ confirmBtn.addEventListener("click", async () => {
         .single();
 
     if (profile) {
-        // เก็บข้อมูล User จริง
         localStorage.setItem("id", profile.id);
         localStorage.setItem("user", JSON.stringify({
             name: profile.name,
             surname: profile.surname,
             phone_number: profile.phonenumber,
-            email: profile.email
+            email: profile.email,
+            role: profile.role
         }));
 
-        // --- [หัวใจสำคัญ] ---
-        // ล้างค่าชั่วคราวทิ้งทันที เพื่อไม่ให้ URL เดิมใช้งานได้อีก
         localStorage.removeItem("temp_user_id");
         localStorage.removeItem("temp_phone");
-
         await supabase.from("otp_codes").update({ is_used: true }).eq("otp_id", otpData.otp_id);
-
-        // ใช้ replace เพื่อไม่ให้กดย้อนกลับมาได้
-        window.location.replace("/home");
+        window.location.replace("home.html");
     }
 });
-
-// ... ส่วน resendBtn และ startTimer คงเดิม ...
 
 resendBtn.addEventListener("click", async () => {
     if (!tempPhone) return;
@@ -118,5 +109,4 @@ function startTimer(seconds) {
             timeLeft--;
         }
     }, 1000);
-
 }
