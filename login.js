@@ -7,8 +7,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
     const phoneInput = document.getElementById("phone");
-
-    // --- [IMPORTANT] ถ้ากลับมาหน้า Login ให้ล้างค่าเก่าทั้งหมดเพื่อเริ่มใหม่ทันที ---
     localStorage.clear();
     sessionStorage.clear();
 
