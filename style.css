@@ -88,7 +88,8 @@ main {
 .slides img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* บังคับให้รูปเต็มพื้นที่โดยไม่เสียสัดส่วน */
+    display: block;
 }
 
 .slide-text {
@@ -727,212 +728,164 @@ main {
 
 /* ส่วนของการตั้งค่าหน้า Usage & Billing */
 /* ขยาย Container ให้กว้างขึ้น */
-.usage-page .container {
-    width: 95%; /* ให้เหลือขอบข้างนิดเดียว */
-    max-width: 1400px;
-    margin: 20px auto;
-    /* ใช้ clamp เพื่อให้ padding เล็กลงอัตโนมัติเมื่อจอแคบ */
-    padding: 0 clamp(10px, 3vw, 40px); 
+/* =========================================
+   Usage Page Styles (New Design)
+   ========================================= */
+
+/* จัด Layout ของหน้า Usage ใหม่ */
+.usage-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
 }
 
-/* หัวข้อแยกหมวดหมู่ */
-.usage-title {
-    font-size: 0.85rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #94a3b8;
-    margin: 40px 0 20px 0;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #e2e8f0;
+.section-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+    border-left: 5px solid #fdef2e; /* สีเหลืองธีม */
+    padding-left: 15px;
+    font-weight: bold;
 }
-.usage-title.net { border-color: #fdef2e; }
-.usage-title.stream { border-color: #fdef2e; }
 
-/* กล่องรายการ Usage (Wide Card) */
-.card-no-padding{
+/* --- Active Package Cards (Grid Layout) --- */
+.usage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* ปรับขนาดอัตโนมัติ */
+    gap: 25px;
+    margin-bottom: 50px;
+}
+
+/* ดีไซน์การ์ดพื้นฐาน */
+.usage-card {
     background: white;
     border-radius: 16px;
-    flex: 1 1 300px;
-    max-width: 1200px;
     padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
-    border-top: 5px solid #fdef2e;
-    cursor: pointer;
-}
-.usage-item {
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* เงานุ่มๆ */
+    border: 1px solid #f0f0f0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
-    padding: clamp(15px, 3vh, 30px) 0;
-    gap: 15px;
+    min-height: 180px;
 }
 
-.usage-item .info h3 {
-    font-size: 1.6rem;
-    color: #0f172a;
+.usage-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* ธีมการ์ด Internet (สีฟ้า) */
+.card-internet {
+    background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+    border-left: 6px solid #2196F3;
+}
+
+/* ธีมการ์ด Entertainment (สีม่วง) */
+.card-entertainment {
+    background: linear-gradient(135deg, #ffffff 0%, #f3e5f5 100%);
+    border-left: 6px solid #9C27B0;
+}
+
+/* รายละเอียดภายในการ์ด */
+.card-header {
+    margin-bottom: 15px;
+}
+
+.card-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #333;
     margin-bottom: 5px;
 }
 
-.usage-item .info p {
-    color: #64748b;
-    font-size: 1rem;
+.card-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* ส่วนตัวเลขด้านขวา */
-.usage-item .metrics {
-    display: flex;
-    align-items: center;
-    gap: 60px;
+.card-details {
+    margin-top: auto;
 }
 
-.usage-item .value-group {
-    text-align: right;
-}
-
-.usage-item .value {
-    font-size: 25px;
-    font-weight: 800;
-    color: #10b981;
-    line-height: 1;
-}
-
-.usage-item .unit {
-    font-size: 1rem;
-    color: #94a3b8;
-    font-weight: 400;
-}
-
-/* สถานะ Active */
-.usage-item .status-badge {
-    border-left: 2px solid #f1f5f9;
-    padding-left: 40px;
-    min-width: 120px;
-    color: #10b981;
-    font-weight: 800;
-    font-size: 1rem;
-    text-align: center;
-}
-
-.bill-table th, 
-.bill-table td {
-    /* ใช้ clamp ปรับระยะห่างตัวอักษรและช่องว่าง */
-    padding: clamp(10px, 2vh, 20px) clamp(8px, 2vw, 20px);
-    font-size: clamp(0.85rem, 1.5vw, 1rem);
-    white-space: nowrap;
-}
-
-.price-col {
-    font-weight: 700;
-    color: #0f172a;
-}
-
-.status-success {
-    background: #ecfdf5;
-    color: #059669;
-    padding: 6px 16px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-/* Modal Background */
-/* การตั้งค่าพื้นหลัง Modal ให้มืดและเบลอ */
-.modal {
-    display: none; 
-    position: fixed; 
-    z-index: 9999; 
-    left: 0; top: 0;
-    width: 100%; height: 100%; 
-    background-color: rgba(0, 0, 0, 0.5); 
-    backdrop-filter: blur(8px); /* ทำให้พื้นหลังเบลอแบบกระจก */
-    transition: all 0.3s ease;
-}
-
-/* กล่องเนื้อหา Modal */
-.modal-content {
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 35px;
-    border-radius: 30px; /* ขอบมนมากตามภาพตัวอย่าง */
-    width: 90%;
-    max-width: 450px;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.3);
-    position: relative;
-    animation: slideIn 0.4s ease-out;
-}
-
-/* หัวข้อ */
-.modal-content h2 {
-    font-size: 2rem;
-    color: #1a202c;
-    margin-bottom: 10px;
-    font-weight: 800;
-}
-
-/* รายละเอียดภายใน */
-.modal-body {
-    margin: 25px 0;
-    text-align: left;
-    background: #f7fafc;
-    padding: 20px;
-    border-radius: 20px;
-    border-left: 5px solid #f5e521; /* แถบสีข้างเน้นราคา */
-}
-
-.modal-body p {
-    margin: 12px 0;
-    font-size: 1.1rem;
-    color: #4a5568;
+.detail-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: #555;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 8px;
 }
 
-.modal-body strong {
-    color: #2d3748;
+.detail-item strong {
+    color: #222;
 }
 
-/* สไตล์ปุ่มยืนยัน */
-#confirmPurchaseBtn {
+/* ป้ายสถานะ Active */
+.status-badge-pill {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* --- Billing Table Styling --- */
+.billing-section {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+}
+
+.bill-table {
     width: 100%;
+    border-collapse: separate; 
+    border-spacing: 0 10px; /* เว้นระยะห่างระหว่างแถว */
+}
+
+.bill-table th {
+    text-align: left;
     padding: 15px;
-    border-radius: 50px;
-    background: #f5e521;
-    color: #4a5568;
-    border: none;
-    font-size: 1.1rem;
+    color: #888;
     font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-top: 10px;
+    border-bottom: 2px solid #f0f0f0;
 }
 
-#confirmPurchaseBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+.bill-table tbody tr {
+    background: #fff;
+    transition: background 0.2s;
 }
 
-/* สไตล์ปุ่มยกเลิก */
-.btn-outline {
-    width: 100%;
-    padding: 12px;
-    border-radius: 50px;
-    background: transparent;
-    color: #4a5568;
-    border: 2px solid #e2e8f0;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: all 0.2s;
+.bill-table tbody tr:hover {
+    background: #fafafa;
 }
 
-.btn-outline:hover {
-    background: #edf2f7;
-    border-color: #cbd5e0;
+.bill-table td {
+    padding: 15px;
+    border-top: 1px solid #f0f0f0;
+    color: #444;
 }
 
+.price-tag {
+    font-weight: bold;
+    color: #333;
+}
 /* Animation ตอนเปิด */
 @keyframes slideIn {
     from { transform: translateY(-30px); opacity: 0; }
@@ -979,4 +932,569 @@ main {
         min-width: auto;
         font-size: 0.8rem;
     }
+}
+
+.admin-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 80px auto;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.badge-user {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge-admin {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.badge-had {
+    background: #fff3e0; 
+    color: #ef6c00;    
+}
+
+/* Action Buttons */
+.action-btn {
+    padding: 6px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-right: 5px;
+    transition: 0.3s;
+}
+
+.btn-view {
+    background-color: #2196F3;
+    color: white;
+}
+
+.btn-view:hover {
+    background-color: #0b7dda;
+}
+
+.btn-edit {
+    background-color: #f0e005;
+    color: rgb(0, 0, 0);
+}
+
+.btn-edit:hover {
+    background-color: #e68900;
+}
+
+.search-box {
+    padding: 10px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Modal Inputs */
+.modal-select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; top: 0;
+    width: 100%; height: 100%; 
+    background-color: rgba(0, 0, 0, 0.5); 
+    backdrop-filter: blur(5px);
+}
+
+/* กล่องเนื้อหา Popup */
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto; /* จัดกึ่งกลางแนวตั้ง */
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px; /* ไม่ให้กว้างเกินไปสำหรับเลือก Role */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease;
+    text-align: left;
+}
+
+/* หัวข้อใน Popup */
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* เส้นคั่น */
+.modal-content hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+/* ตัวเลือก Dropdown (Select Box) */
+#roleSelect {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    outline: none;
+    transition: border-color 0.3s;
+    cursor: pointer;
+    appearance: none; /* ลบลูกศรเดิมของ Browser */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='gray' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+}
+
+#roleSelect:focus {
+    border-color: #2196F3; /* สีฟ้าเวลาคลิก */
+}
+
+/* ปุ่มด้านล่าง Popup */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end; /* ชิดขวา */
+    gap: 10px;
+    margin-top: 25px;
+}
+
+/* Animation ให้ Popup ค่อยๆ ปรากฏ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   Modern Confirm Purchase Modal (Receipt Style)
+   ========================================= */
+
+/* 1. ปรับพื้นหลัง Modal ให้ดูมืดและเบลอ (Glassmorphism) */
+/* =========================================
+   Billing History (Grouped by Date)
+   ========================================= */
+
+   /* =========================================
+   Active Package Card Styles
+   ========================================= */
+
+
+/* หัวข้อแยกประเภท */
+.usage-title {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 20px 0 10px 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.usage-title.net { border-left: 4px solid #fdef2e; padding-left: 10px; color: #e0d100; }
+.usage-title.stream { border-left: 4px solid #9C27B0; padding-left: 10px; color: #9C27B0; }
+    /* ส่วนควบคุม (Filter) */
+    .history-controls {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        background: #fff;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .date-input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-left: 10px;
+        font-size: 1rem;
+        color: #333;
+        outline: none;
+    }
+
+/* กล่องรายการทั้งหมด */
+.billing-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* หัวข้อวันที่ (Date Header) */
+.date-header {
+    background: #fdef2e; /* สีธีมเหลือง */
+    color: #1f1f1f;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 1rem;
+    display: inline-block;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* การ์ดรายการสินค้า */
+.bill-card-item {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    margin-bottom: 10px;
+}
+
+.bill-card-item:hover {
+    transform: translateX(5px);
+}
+
+.bill-info h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.bill-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.bill-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.date-group-header {
+    background-color: #fffde7; /* สีเหลืองอ่อนมากๆ */
+    color: #333;
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.date-group-header td {
+    padding: 15px 20px !important;
+    border-top: 2px solid #fdef2e; /* เส้นคั่นสีเหลืองธีม */
+    border-bottom: 1px solid #ddd;
+}
+
+/* แถวรายการสินค้าปกติ */
+.bill-item-row td {
+    padding: 12px 20px;
+    border-bottom: 1px solid #eee;
+    color: #555;
+}
+
+.bill-item-row:hover {
+    background-color: #f9f9f9;
+}
+
+/* ปรับช่อง Item ให้ย่อหน้าเข้าไปนิดนึงจะได้ดูเป็นลูกน้องของวันที่ */
+.bill-item-name {
+    padding-left: 40px !important; 
+    font-weight: 500;
+    color: #222;
+}
+
+.bill-price-col {
+    font-weight: 700;
+    color: #333;
+}
+
+.usage-page .container {
+    width: 95%; /* ให้เหลือขอบข้างนิดเดียว */
+    max-width: 1400px;
+    margin: 20px auto;
+    /* ใช้ clamp เพื่อให้ padding เล็กลงอัตโนมัติเมื่อจอแคบ */
+    padding: 0 clamp(10px, 3vw, 40px); 
+}
+
+/* หัวข้อแยกหมวดหมู่ */
+.usage-title {
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin: 40px 0 20px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* สถานะ Active */
+.usage-item .status-badge {
+    border-left: 2px solid #f1f5f9;
+    padding-left: 40px;
+    min-width: 120px;
+    color: #10b981;
+    font-weight: 800;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.bill-table th, 
+.bill-table td {
+    /* ใช้ clamp ปรับระยะห่างตัวอักษรและช่องว่าง */
+    padding: clamp(10px, 2vh, 20px) clamp(8px, 2vw, 20px);
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    white-space: nowrap;
+}
+
+.price-col {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.status-success {
+    background: #ecfdf5;
+    color: #059669;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* =========================================
+   Active Package Card (Fix Shrinking & Layout)
+   ========================================= */
+
+/* 1. บังคับให้กล่อง Container เรียงลงมาเป็นแนวตั้ง */
+#active-package {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+/* 2. ตัวการ์ดต้องกว้างเต็ม 100% เสมอ */
+.card-no-padding {
+    background: white;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 20px;
+    border-top: 5px solid #fdef2e;
+    display: block; /* เลิกใช้ Flex ในระดับการ์ด เพื่อป้องกันการหดตัว */
+    position: relative;
+}
+
+/* 3. จัดเลย์เอาท์ภายใน: ชื่ออยู่ซ้าย / วันเหลืออยู่ขวา */
+.usage-item {
+    display: flex;
+    flex-wrap: nowrap; /* ห้ามตกขอบถ้าไม่จำเป็น */
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+}
+
+/* 4. ส่วนชื่อแพ็คเกจ (ซ้าย) */
+.usage-item .info {
+    flex: 1; /* ยืดกินพื้นที่ที่เหลือทั้งหมด */
+    min-width: 0; /* สำคัญมาก! ช่วยให้ text wrap ทำงานใน Flexbox */
+    margin-right: 10px;
+}
+
+.usage-item .info h3 {
+    font-size: 1.3rem;
+    color: #0f172a;
+    margin-bottom: 5px;
+    line-height: 1.4;
+    
+    /* แก้ไข: ยอมให้ขึ้นบรรทัดใหม่ได้ ถ้าชื่อยาวเกิน */
+    white-space: normal; 
+    word-wrap: break-word;
+}
+
+.usage-item .info p {
+    color: #64748b;
+    font-size: 0.9rem;
+    white-space: nowrap; /* บรรทัดย่อยๆ ให้ตัดคำได้ */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 5. ส่วนตัวเลขวันคงเหลือ (ขวา) */
+.usage-item .metrics {
+    flex: 0 0 auto; /* ห้ามหด! ห้ามขยาย! เอาขนาดเท่าเนื้อหา */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.usage-item .value-group {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.usage-item .value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #10b981;
+    line-height: 1;
+}
+
+.usage-item .unit {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    white-space: nowrap; /* ห้ามตัดคำว่า Days Left */
+}
+
+/* ป้ายสถานะ Active */
+.status-badge {
+    background: #e0f2fe;
+    color: #0284c7;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap; /* ห้ามตัดคำ */
+}
+
+/* Responsive: ถ้าจอมือถือเล็กมาก ให้เอาวันลงมาบรรทัดล่าง */
+@media (max-width: 480px) {
+    .usage-item {
+        flex-wrap: wrap; /* ยอมให้ตกบรรทัด */
+    }
+    .usage-item .metrics {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 10px;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 10px;
+    }
+}
+
+/* การตกแต่งส่วนเลือก Payment ใน Modal */
+.payment-selection-wrapper {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.payment-selection-wrapper label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.select-container {
+    position: relative;
+    width: 100%;
+}
+
+#paymentMethodSelect {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    appearance: none; /* เอาลูกศรเดิมออก */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#paymentMethodSelect:focus {
+    outline: none;
+    border-color: #fdef2e; /* สีเหลือง NETSIM */
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(255, 204, 0, 0.2);
+}
+
+/* เพิ่มลูกศร Custom */
+.select-container::after {
+    content: '▼';
+    font-size: 0.8rem;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    position: absolute;
+    pointer-events: none;
+    color: #888;
+}
+
+/* ปรับแต่งรายละเอียดข้อมูลใน Modal */
+.purchase-info p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+
+.purchase-info strong {
+    color: #555;
+}
+
+/* ปุ่ม Confirm สีเหลือง */
+.btn-confirm {
+    background-color: #fdef2e;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-confirm:hover {
+    background-color: #fdef2e;
 }
