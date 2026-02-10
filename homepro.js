@@ -29,6 +29,6 @@ async function loadProfile() {
     }
     nameEl.textContent = `${data.name} ${data.surname}`;
     emailEl.textContent = data.email;
-    imgEl.src = data.imgprofile || "img/default-profile.png";
+    imgEl.src = data.imgprofile || "img/P.png";
     imgEl.alt = "Profile";
 }
