@@ -1890,6 +1890,7 @@ body.dark-mode #paymentMethodSelect {
     outline: none;
 }
 
+body.dark-mode #roleSelect,
 body.dark-mode .modal-select option,
 body.dark-mode #paymentMethodSelect option {
     background-color: #222;    
