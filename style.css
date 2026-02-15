@@ -1588,7 +1588,8 @@ body {
     
 }
 .card h3 { color: var(--text-main); }
-.card .price { color: #fdef2e; } /* สีเหลืองเดิมสวยอยู่แล้วในธีมมืด */
+.card .price { color: #cec401; } /* สีเหลืองเดิมสวยอยู่แล้วในธีมมืด */
+
 .card ul li { color: var(--text-muted); }
 
 /* แก้ไข Modal */
@@ -1619,7 +1620,7 @@ input, select, textarea {
     /* ... ตัวแปรเดิม ... */
     --text-card-desc: #666666; /* สีเทาตามที่คุณต้องการ */
 }
-
+body.dark-mode .card .price { color: #fdef2e; }
 body.dark-mode {
     /* ... ตัวแปรเดิม ... */
     --text-card-desc: #cccccc; /* สีเทาอ่อน เพื่อให้อ่านง่ายบนพื้นหลังดำ */
