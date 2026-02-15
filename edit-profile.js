@@ -55,7 +55,5 @@ document.getElementById("editProfileForm").addEventListener("submit", async (e) 
         alert("Update failed");
         return;
     }
-
-    alert("Profile updated");
     window.location.href = "profile.html";
 });
