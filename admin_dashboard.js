@@ -4,6 +4,14 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let editingUserId = null;
+let allUsersData = []; 
+let currentPage = 1;
+const rowsPerPage = 10;
+
+// --- ส่วนที่เพิ่ม: ตัวแปรสำหรับแบ่งหน้าใน History Modal ---
+let currentHistoryGrouped = {}; 
+let historyPage = 1;
+const historyDatesPerPage = 2; // แสดงผลทีละ 2 วันต่อหน้า
 
 window.onload = loadUsers;
 
@@ -17,6 +25,7 @@ async function loadUsers() {
         console.error("Error loading users:", error);
         return;
     }
+    allUsersData = users;
     renderTable(users);
 }
 
@@ -27,10 +36,18 @@ function isHAD() {
 
 function renderTable(users) {
     const tbody = document.getElementById("userTableBody");
+    const paginationDiv = document.getElementById("pagination");
     tbody.innerHTML = "";
+    if (paginationDiv) paginationDiv.innerHTML = "";
+
+    const totalPages = Math.ceil(users.length / rowsPerPage);
+    if (currentPage > totalPages) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    const usersToShow = users.slice(startIndex, endIndex);
 
     const userStored = localStorage.getItem("user");
-    // ดึง ID ของตัวเองจาก localStorage key "id" โดยตรง (ตามที่เคยแก้ให้)
     const myId = localStorage.getItem("id"); 
     let myRole = "";
     
@@ -43,13 +60,12 @@ function renderTable(users) {
         }
     }
 
-    users.forEach(user => {
+    usersToShow.forEach(user => {
         let badgeClass = "badge-user";
         if (user.role === 'admin') badgeClass = "badge-admin";
         if (user.role === 'HAD') badgeClass = "badge-had";
 
         let roleBtn = "";
-        // ปุ่ม Edit Role จะโชว์เฉพาะถ้าเราเป็น HAD และไม่ใช่ User ของตัวเอง
         if (myRole === 'HAD' && user.id !== myId) {
             roleBtn = `<button class="action-btn btn-edit" onclick="openRoleModal('${user.id}', '${user.role}')">Edit Role</button>`;
         }
@@ -72,9 +88,36 @@ function renderTable(users) {
         `;
         tbody.innerHTML += row;
     });
+
+    if (paginationDiv && totalPages > 1) {
+        setupPagination(totalPages, paginationDiv, users);
+    }
 }
 
-// --- ส่วนจัดการ History Modal (แก้ไขวันที่เป็น en-GB) ---
+function setupPagination(totalPages, container, currentDataList) {
+    const prevBtn = document.createElement("button");
+    prevBtn.innerText = "❮";
+    prevBtn.className = "page-btn";
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => { currentPage--; renderTable(currentDataList); };
+    container.appendChild(prevBtn);
+
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+        btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+        btn.onclick = () => { currentPage = i; renderTable(currentDataList); };
+        container.appendChild(btn);
+    }
+
+    const nextBtn = document.createElement("button");
+    nextBtn.innerText = "❯";
+    nextBtn.className = "page-btn";
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => { currentPage++; renderTable(currentDataList); };
+    container.appendChild(nextBtn);
+}
+
 window.viewHistory = async function(userId, email) {
     document.getElementById("historyUserEmail").innerText = "User: " + email;
     
@@ -91,121 +134,151 @@ window.viewHistory = async function(userId, email) {
         .eq("id", userId) 
         .order("purchase_date", { ascending: false });
 
-    const tbody = document.getElementById("historyTableBody");
-    tbody.innerHTML = "";
-
-    if (!history || history.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding: 20px;'>No purchase history found.</td></tr>";
-    } else {
-        const groupedData = {};
-
-        history.forEach(h => {
-            const rawDate = new Date(h.purchase_date);
-            const dateKey = rawDate.toISOString().split('T')[0];
-            if (!groupedData[dateKey]) groupedData[dateKey] = [];
-            groupedData[dateKey].push(h);
-        });
-
-        const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(b) - new Date(a));
-
-        sortedDates.forEach(dateKey => {
-            const itemsInDate = groupedData[dateKey];
-            
-            // --- แก้ตรงนี้ครับ: เปลี่ยนเป็น en-GB เพื่อให้วันที่ขึ้นก่อน ---
-            const displayDate = new Date(dateKey).toLocaleDateString("en-GB", {
-                day: 'numeric', month: 'long', year: 'numeric'
-            });
-            // -----------------------------------------------------
-
-            tbody.innerHTML += `
-                <tr style="background-color: #fffde7;">
-                    <td colspan="3" style="padding: 15px; font-weight: bold; border-top: 2px solid #fdef2e; color: #333;">
-                        ${displayDate}
-                    </td>
-                </tr>
-            `;
-
-            itemsInDate.forEach(h => {
-                if(h.purchase_detail && h.purchase_detail.length > 0) {
-                    h.purchase_detail.forEach(d => {
-                        const price = d.price_logs ? d.price_logs.price : "0";
-                        let itemName = "Unknown";
-                        let type = "-";
-
-                        if (d.internet_packages) {
-                            itemName = d.internet_packages.package_name;
-                            type = "Internet";
-                        } else if (d.entertainment_services) {
-                            itemName = d.entertainment_services.service_name;
-                            type = "Service";
-                        }
-
-                        tbody.innerHTML += `
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 10px 10px 10px 30px;">${itemName}</td>
-                                <td style="padding: 10px;">${type}</td>
-                                <td style="padding: 10px; font-weight: bold;">${price.toLocaleString()} THB</td>
-                            </tr>
-                        `;
-                    });
-                }
-            });
-        });
+    if (error) {
+        console.error(error);
+        return;
     }
 
+    currentHistoryGrouped = {};
+    history.forEach(h => {
+        const rawDate = new Date(h.purchase_date);
+        const dateKey = rawDate.toISOString().split('T')[0];
+        if (!currentHistoryGrouped[dateKey]) currentHistoryGrouped[dateKey] = [];
+        currentHistoryGrouped[dateKey].push(h);
+    });
+
+    historyPage = 1; 
+    renderHistoryTable(); 
     document.getElementById("historyModal").style.display = "block";
 }
 
-window.closeHistoryModal = function() {
-    document.getElementById("historyModal").style.display = "none";
+function renderHistoryTable() {
+    const tbody = document.getElementById("historyTableBody");
+    tbody.innerHTML = "";
+
+    const sortedDates = Object.keys(currentHistoryGrouped).sort((a, b) => new Date(b) - new Date(a));
+    const totalPages = Math.ceil(sortedDates.length / historyDatesPerPage);
+
+    if (sortedDates.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding: 20px;'>No purchase history found.</td></tr>";
+        return;
+    }
+
+    const startIndex = (historyPage - 1) * historyDatesPerPage;
+    const datesToShow = sortedDates.slice(startIndex, startIndex + historyDatesPerPage);
+
+    datesToShow.forEach(dateKey => {
+        const itemsInDate = currentHistoryGrouped[dateKey];
+        const displayDate = new Date(dateKey).toLocaleDateString("en-GB", {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        tbody.innerHTML += `
+            <tr class="ad-H">
+                <td colspan="3" class="a" >${displayDate}</td>
+            </tr>
+        `;
+
+        let dailyTotal = 0;
+        itemsInDate.forEach(h => {
+            if(h.purchase_detail && h.purchase_detail.length > 0) {
+                h.purchase_detail.forEach(d => {
+                    const price = d.price_logs ? Number(d.price_logs.price) : 0;
+                    let itemName = "Unknown";
+                    let type = "-";
+                    if (d.internet_packages) { itemName = d.internet_packages.package_name; type = "Internet"; }
+                    else if (d.entertainment_services) { itemName = d.entertainment_services.service_name; type = "Service"; }
+                    
+                    dailyTotal += price;
+
+                    tbody.innerHTML += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px 10px 10px 30px;">${itemName}</td>
+                            <td style="padding: 10px;">${type}</td>
+                            <td style="padding: 10px; font-weight: bold;">${price.toLocaleString()} THB</td>
+                        </tr>
+                    `;
+                });
+            }
+        });
+        tbody.innerHTML += `
+            <tr style="background: rgba(0,0,0,0.03); font-weight: bold; border-bottom: 2px solid #ddd;">
+                <td colspan="2" style="text-align: right; padding: 10px;">Total:</td>
+                <td style="padding: 10px; color: #ff4646;">${dailyTotal.toLocaleString()} THB</td>
+            </tr>
+        `;
+    });
+
+    // --- ส่วนจัดการ Pagination ใน Modal ให้เป๊ะตามตารางหลัก ---
+    let historyPaginationDiv = document.getElementById("historyPagination");
+    if (!historyPaginationDiv) {
+        historyPaginationDiv = document.createElement("div");
+        historyPaginationDiv.id = "historyPagination";
+        historyPaginationDiv.className = "pagination-container";
+        historyPaginationDiv.style.margin = "20px 0";
+        document.querySelector("#historyModal .modal-content").insertBefore(historyPaginationDiv, document.querySelector("#historyModal .modal-footer"));
+    }
+    
+    historyPaginationDiv.innerHTML = "";
+    if (totalPages > 1) {
+        setupHistoryPagination(totalPages, historyPaginationDiv);
+    }
 }
 
+// ฟังก์ชันสร้างปุ่มตัวเลขใน Modal (ถอดแบบ setupPagination มาเป๊ะๆ)
+function setupHistoryPagination(totalPages, container) {
+    const prevBtn = document.createElement("button");
+    prevBtn.innerText = "❮";
+    prevBtn.className = "page-btn";
+    prevBtn.disabled = historyPage === 1;
+    prevBtn.onclick = () => { historyPage--; renderHistoryTable(); };
+    container.appendChild(prevBtn);
+
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+        btn.className = `page-btn ${i === historyPage ? 'active' : ''}`;
+        btn.onclick = () => { historyPage = i; renderHistoryTable(); };
+        container.appendChild(btn);
+    }
+
+    const nextBtn = document.createElement("button");
+    nextBtn.innerText = "❯";
+    nextBtn.className = "page-btn";
+    nextBtn.disabled = historyPage === totalPages;
+    nextBtn.onclick = () => { historyPage++; renderHistoryTable(); };
+    container.appendChild(nextBtn);
+}
+
+window.closeHistoryModal = function() { document.getElementById("historyModal").style.display = "none"; }
 window.openRoleModal = function(userId, currentRole) {
     editingUserId = userId; 
     const select = document.getElementById("roleSelect");
     if (select) select.value = currentRole; 
     document.getElementById("roleModal").style.display = "block"; 
 }
-
-window.closeRoleModal = function() {
-    document.getElementById("roleModal").style.display = "none";
-    editingUserId = null;
-}
-
+window.closeRoleModal = function() { document.getElementById("roleModal").style.display = "none"; editingUserId = null; }
 window.saveRoleChange = async function() {
     if (!editingUserId) return;
-
     const newRole = document.getElementById("roleSelect").value;
     const saveBtn = document.querySelector("#roleModal .btn-edit");
-    
-    const originalText = saveBtn.innerText;
     saveBtn.innerText = "Saving...";
     saveBtn.disabled = true;
-
-    const { error } = await supabase
-        .from('users')
-        .update({ role: newRole })
-        .eq('id', editingUserId);
-
-    saveBtn.innerText = originalText;
+    const { error } = await supabase.from('users').update({ role: newRole }).eq('id', editingUserId);
+    saveBtn.innerText = "Save";
     saveBtn.disabled = false;
-
-    if (error) {
-        alert("Error updating role: " + error.message);
-    } else {
-        closeRoleModal();
-        loadUsers(); 
-    }
+    if (error) { alert("Error updating role: " + error.message); } 
+    else { closeRoleModal(); loadUsers(); }
 }
 
-// Search
 document.getElementById("searchInput").addEventListener("keyup", function() {
     const value = this.value.toLowerCase();
-    const rows = document.querySelectorAll("#userTableBody tr");
-    rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(value) ? "" : "none";
+    const filtered = allUsersData.filter(user => {
+        const text = (user.email + (user.name||'') + (user.surname||'') + user.role).toLowerCase();
+        return text.includes(value);
     });
+    currentPage = 1;
+    renderTable(filtered);
 });
 
 window.onclick = function(event) {
