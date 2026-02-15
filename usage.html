@@ -21,7 +21,9 @@
     <div class="logo" onclick="window.location.href='home.html'">
         NET<span>SIM</span>
     </div>
-
+    <button id="themeToggleBtn" class="login-btn" onclick="toggleTheme()" style="margin-left: auto; margin-right: 10px; background: transparent; border: 1px solid #fdef2e; color: #fdef2e;">
+        🌙
+    </button>
     <div class="user-actions">
         <div class="profile-btn" onclick="window.location.href='profile.html'">
             <div class="profile-card">
@@ -61,7 +63,11 @@
             </div>
 
             <div class="table-responsive">
-                <table class="bill-table" style="width: 100%; border-collapse: collapse;">
+                <table class="bill-table">
+                    <tbody id="billing-table-body"></tbody>
+                    <colgroup>
+                        <col style="width: 45%;">  <col style="width: 20%;">  <col style="width: 20%;">  </colgroup>
+
                     <thead>
                         <tr style="background: #f4f4f4; text-align: left;">
                             <th style="padding: 15px;">Package</th>
@@ -73,6 +79,7 @@
                         </tbody>
                 </table>
             </div>
+            <div id="pagination" class="pagination-container"></div>
         </section>
                 
         <div style="margin-top: 30px; text-align: center;">
@@ -91,6 +98,7 @@
     </script>
     <script src="HB.js"></script>  
     <script type="module" src="homepro.js"></script>
+    <script src="dack.js"></script>
 </body>
 </html>
 
