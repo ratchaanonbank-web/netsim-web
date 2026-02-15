@@ -14,9 +14,10 @@
     <div class="logo" onclick="window.location.href='home.html'">
         NET<span>SIM</span> Admin
     </div>
-
+    <button id="themeToggleBtn" class="login-btn" onclick="toggleTheme()" style="margin-left: auto; margin-right: 10px; background: transparent; border: 1px solid #fdef2e; color: #fdef2e;">
+        🌙
+    </button>
     <div class="user-actions">
-
         <div class="profile-btn" onclick="window.location.href='profile.html'">
             <div class="profile-card">
                 <img id="profileImage" src="img/P.png" alt="Profile">
@@ -29,11 +30,9 @@
 
     <div id="mySidepanel" class="sidepanel">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        
         <a href="admin_dashboard.html" id="adminBtn" style="display: none;">Admin Dashboard</a>
-        
-        <a href="#packages">Internet Packages</a>
-        <a href="#services">Entertainment Services</a>
+        <a href="home.html#packages">Internet Packages</a>
+        <a href="home.html#services">Entertainment Services</a>
         <a href="usage.html">Bills and Usage</a>
         <a href="javascript:void(0)" class="login-btn" onclick="logout()">Logout</a>
     </div>
@@ -48,7 +47,9 @@
             <input type="text" id="searchInput" class="search-box" placeholder="Search email or username...">
         </div>
         
-        <table id="userTable">
+        <table id="userTable" style="table-layout: fixed; width: 100%;">
+            <colgroup>
+                <col style="width: 25%;"> <col style="width: 25%;"> <col style="width: 15%;"> <col style="width: 10%;"> <col style="width: 25%;"> </colgroup>
             <thead>
                 <tr>
                     <th>Email</th>
@@ -61,6 +62,8 @@
             <tbody id="userTableBody">
                 </tbody>
         </table>
+
+        <div id="pagination" class="pagination-container"></div>
     </div>
 </div>
 
@@ -72,16 +75,20 @@
         <div class="table-wrapper" style="box-shadow: none; padding: 0;">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr>
-                        <th style="padding: 10px;">Package</th>
-                        <th style="padding: 10px;">Type</th>
-                        <th style="padding: 10px;">Price</th>
+                    <tr style="background-color: var(--card-bg);">
+                        <th style="padding: 10px; text-align: left;">Package</th>
+                        <th style="padding: 10px; text-align: left;">Type</th>
+                        <th style="padding: 10px; text-align: left;">Price</th>
                     </tr>
                 </thead>
-                <tbody id="historyTableBody"></tbody>
+                <tbody id="historyTableBody">
+                    </tbody>
             </table>
         </div>
-        <div class="modal-footer" style="margin-top: 20px;">
+
+        <div id="historyPagination" class="pagination-container" style="margin: 15px 0;"></div>
+
+        <div class="modal-footer">
             <button class="btn-outline" onclick="closeHistoryModal()">Close</button>
         </div>
     </div>
@@ -112,7 +119,14 @@
 <script src="HB.js"></script> 
 <script src="home.js"></script>
 <script src="auth_monitor.js"></script>
+<script src="dack.js"></script>
+
+<script>
+    function logout() {
+        localStorage.removeItem("user");
+        localStorage.removeItem("id");
+        window.location.href = "login.html";
+    }
+</script>
 </body>
-
 </html>
-
