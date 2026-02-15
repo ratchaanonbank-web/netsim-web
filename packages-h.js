@@ -150,6 +150,60 @@ async function hasPurchased(itemId, type) {
 }
 
 /* ================= Open Purchase ================= */
+/* ================= Check สถานะการใช้งานตามวันหมดอายุ ================= */
+/* ================= Check usage status based on expiration date ================= */
+async function getPackageStatus(itemId, type) {
+    const userId = localStorage.getItem("id");
+    if (!userId) return { isActive: false };
+
+    // Fetch the latest purchase record for this item
+    const { data, error } = await supabase
+        .from("purchase_detail")
+        .select(`
+            purchase_history!inner(purchase_date, id),
+            internet_packages(service_life),
+            entertainment_services(service_life)
+        `)
+        .eq("purchase_history.id", userId)
+        .eq(type === "internet" ? "package_id" : "service_id", itemId)
+        .order("purchase_history(purchase_date)", { ascending: false })
+        .limit(1);
+
+    // 1. If never purchased or no data found -> Allow purchase
+    if (error || !data || data.length === 0) {
+        return { isActive: false };
+    }
+
+    const lastPurchase = data[0];
+    const purchaseDate = new Date(lastPurchase.purchase_history.purchase_date);
+    const serviceLife = type === "internet" 
+        ? lastPurchase.internet_packages?.service_life 
+        : lastPurchase.entertainment_services?.service_life;
+
+    // 2. Calculate expiration date (Purchase date + Service life)
+    const expireDate = new Date(purchaseDate);
+    expireDate.setDate(expireDate.getDate() + serviceLife);
+    
+    // Set expiration time to the end of that day (23:59:59)
+    expireDate.setHours(23, 59, 59, 999);
+    
+    const now = new Date();
+
+    // 3. Compare current time with expiration date
+    if (now > expireDate) {
+        // If current time is past expiration -> Can repurchase
+        return { isActive: false };
+    } else {
+        // If not yet expired -> Restrict repurchase
+        return {
+            isActive: true,
+            expireDate: expireDate.toLocaleDateString("en-GB")
+        };
+    }
+}
+
+/* ================= Open Purchase (ส่วนที่เรียกใช้) ================= */
+/* ================= Open Purchase Modal ================= */
 window.openPurchaseModal = async function (id, name, price, type, priceId) {
     const user = localStorage.getItem("user");
     if (!user) {
@@ -157,13 +211,16 @@ window.openPurchaseModal = async function (id, name, price, type, priceId) {
         return;
     }
 
-    // ❌ ซื้อซ้ำไม่ได้ → Popup
-    const alreadyBought = await hasPurchased(id, type);
-    if (alreadyBought) {
-        showAlert("You have already purchased this package.");
+    // Check expiration status
+    const status = await getPackageStatus(id, type);
+    
+    if (status.isActive) {
+        // Notify user if the package is still active
+        showAlert(`Your ${name} package is still active.\nIt will expire on: ${status.expireDate}\nPlease wait until it expires before purchasing again.`);
         return;
     }
 
+    // If expired or new (isActive: false), open the modal normally
     const modal = document.getElementById("purchaseModal");
     const details = document.getElementById("modalDetails");
 
