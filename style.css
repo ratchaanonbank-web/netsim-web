@@ -202,13 +202,24 @@ main {
     background: white;
     border-radius: 16px;
     flex: 1 1 300px;
-    max-width: 420px;
     padding: 25px;
     border-radius: 15px;
     box-shadow: 0 6px 15px rgba(0,0,0,0.12);
     border-top: 5px solid #fdef2e;
     cursor: pointer;
+    /* จัดระเบียบความสูงและการวางเนื้อหา */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    /* เพิ่มส่วนจำกัดความกว้างตามที่ขอ */
+    width: 100%;          /* ให้ขยายเต็มพื้นที่ที่มี */
+    max-width: 420px;     /* แต่ห้ามเกิน 420px */
+    margin-left: auto;    /* จัดกึ่งกลางแนวนอน (ซ้าย) */
+    margin-right: auto;   /* จัดกึ่งกลางแนวนอน (ขวา) */
 }
+
+
 
 .card:hover {
     transform: translateY(-8px);
@@ -221,8 +232,9 @@ main {
 }
 
 .card p {
-    font-size: 18px;
-    color: #666;
+    font-size: 18px;    
+    color: var(--text-card-desc);
+    margin-bottom: 5px;       
 }
 
 .price {
@@ -948,10 +960,17 @@ main {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+/* เพิ่มหรือแก้ไขใน style.css ส่วนของตาราง */
 table {
-    width: 100%;
+    width: 100%;             /* บังคับให้กว้างเต็มจอเสมอ */
+    table-layout: fixed;     /* (แนะนำ) ช่วยให้คอลัมน์เท่ากันและไม่ดิ้นไปมา */
     border-collapse: collapse;
-    margin-top: 10px;
+}
+
+/* ถ้าอยากให้ตารางมีความสูงขั้นต่ำ (ไม่หดสั้นจู๋) ให้ใส่ที่ container */
+.table-container {
+    min-height: 300px;       /* ความสูงขั้นต่ำ */
+    background: var(--card-bg); /* ให้สีพื้นหลังยังอยู่ */
 }
 
 th, td {
@@ -984,13 +1003,13 @@ tr:hover {
 }
 
 .badge-admin {
-    background: #ffebee;
-    color: #c62828;
+    background: #06ec5349;
+    color: #06bd43;
 }
 
 .badge-had {
-    background: #fff3e0; 
-    color: #ef6c00;    
+    background: #ffe0e0; 
+    color: #ef0000;    
 }
 
 /* Action Buttons */
@@ -1285,15 +1304,23 @@ tr:hover {
     font-size: 1rem;
     text-align: center;
 }
-
+.bill-table{
+    width: 100%; 
+    border-collapse: collapse; 
+    table-layout: fixed;
+}
 .bill-table th, 
 .bill-table td {
     /* ใช้ clamp ปรับระยะห่างตัวอักษรและช่องว่าง */
     padding: clamp(10px, 2vh, 20px) clamp(8px, 2vw, 20px);
     font-size: clamp(0.85rem, 1.5vw, 1rem);
     white-space: nowrap;
+
 }
 
+.bill-table td{
+    background: rgb(255, 255, 255);
+}
 .price-col {
     font-weight: 700;
     color: #0f172a;
@@ -1497,4 +1524,367 @@ tr:hover {
 
 .btn-confirm:hover {
     background-color: #fdef2e;
+}
+
+.ad-H{
+    background-color: #fffde7;
+}
+
+.ad-Ht{
+    padding: 15px; 
+    font-weight: bold; 
+    border-top: 2px solid #fdef2e; 
+    color: #333;
+}
+.tx-Total{
+    padding: 10px 15px; 
+    color: #ffffff; 
+    text-shadow: 0px 0px 1px #333;
+}
+
+/* ===== CSS Variables & Theme Config ===== */
+:root {
+    --bg-color: #f8fafc;        /* พื้นหลังเว็บปกติ */
+    --section-gray: #f1f5f9;    /* พื้นหลังส่วนสีเทา */
+    --card-bg: #ffffff;         /* พื้นหลังการ์ด */
+    --text-main: #0f172a;       /* สีตัวหนังสือหลัก */
+    --text-muted: #64748b;      /* สีตัวหนังสือรอง */ 
+    --modal-bg: #ffffff;        /* พื้นหลัง Modal */
+    --input-bg: #ffffff;        /* พื้นหลัง Input */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 🌙 กำหนดสีสำหรับ Dark Mode */
+body.dark-mode {
+    --bg-color: #121212;
+    --section-gray: #1e1e1e;
+    --card-bg: #2d2d2d;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --modal-bg: #2d2d2d;
+    --input-bg: #3d3d3d;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ===== Apply Variables to Elements ===== */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    transition: background-color 0.3s, color 0.3s; /* เพิ่ม Transition ให้เปลี่ยนสีนุ่มๆ */
+}
+
+/* แก้ไขส่วน Section */
+.section {
+    background-color: var(--bg-color);
+}
+.section.gray {
+    background-color: var(--section-gray);
+}
+
+/* แก้ไขการ์ด */
+.card {
+    background: var(--card-bg);
+    box-shadow: 0 4px 6px -1px var(--shadow-color);
+    
+}
+.card h3 { color: var(--text-main); }
+.card .price { color: #fdef2e; } /* สีเหลืองเดิมสวยอยู่แล้วในธีมมืด */
+.card ul li { color: var(--text-muted); }
+
+/* แก้ไข Modal */
+.modal-content {
+    background-color: var(--modal-bg);
+    color: var(--text-main);
+}
+.modal-header h2, .modal-body p {
+    color: var(--text-main);
+}
+
+/* แก้ไข Input & Select */
+input, select, textarea {
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+/* ปรับ User Menu ใน Navbar */
+.sidepanel a {
+    color: white;
+}
+.sidepanel a:hover {
+    color: var(--text-main);
+}
+
+:root {
+    /* ... ตัวแปรเดิม ... */
+    --text-card-desc: #666666; /* สีเทาตามที่คุณต้องการ */
+}
+
+body.dark-mode {
+    /* ... ตัวแปรเดิม ... */
+    --text-card-desc: #cccccc; /* สีเทาอ่อน เพื่อให้อ่านง่ายบนพื้นหลังดำ */
+}
+
+/* ================= Dark Mode สำหรับหน้า Login ================= */
+
+/* 1. ปรับพื้นหลังหน้า Login ให้มืดลง (หรือจะเปลี่ยนเป็นสีพื้นก็ได้) */
+body.dark-mode .login-page {
+    /* ใช้ Gradient สีดำโปร่งแสงทับรูปภาพเดิม เพื่อให้รูปมืดลง */
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('img/slide1.jpg') no-repeat center center/cover;
+}
+
+/* 2. เปลี่ยนสีการ์ด Login เป็นสีเทาเข้ม */
+body.dark-mode .login-card {
+    background: #2d2d2d;       /* สีพื้นหลังแบบ Dark */
+    color: #f1f5f9;            /* สีตัวหนังสือขาว */
+    border: 1px solid #444;    /* เพิ่มขอบสีเทาจางๆ */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+/* 3. ปรับสีหัวข้อและข้อความต่างๆ ในการ์ด */
+body.dark-mode .login-card h2,
+body.dark-mode .login-card p,
+body.dark-mode .divider-container {
+    color: #f1f5f9;
+}
+
+/* 4. ปรับช่องกรอกข้อมูล (Input) */
+body.dark-mode .login-card input {
+    background-color: #3d3d3d;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+body.dark-mode .login-card input::placeholder {
+    color: #888;
+}
+
+/* 5. ปรับเส้นขีดคั่น (Divider) */
+body.dark-mode .divider-container::before, 
+body.dark-mode .divider-container::after {
+    background-color: #555;
+}
+
+/* 6. ปรับปุ่มแบบมีขอบ (Create Account / Login Email) */
+body.dark-mode .btn-outline {
+    border-color: #fdef2e;
+    color: #fdef2e;
+}
+
+body.dark-mode .btn-outline:hover {
+    background-color: #fdef2e;
+    color: #1f1f1f;
+}
+
+/* ================= Dark Mode: Admin Dashboard Specific ================= */
+
+/* 1. ปรับแต่งตาราง (Table) */
+body.dark-mode table {
+    background-color: var(--card-bg);
+}
+
+body.dark-mode th {
+    background-color: #3d3d3d;   /* สีพื้นหลังหัวตาราง */
+    color: #fdef2e;              /* สีตัวหนังสือหัวตาราง (สีเหลืองธีม) */
+    border-color: #444;          /* สีเส้นขอบ */
+}
+
+body.dark-mode td {
+    color: var(--text-main);     /* สีตัวหนังสือในแถว */
+    border-color: #444;          /* สีเส้นขอบ */
+}
+
+/* แถว "ไม่พบข้อมูล" */
+body.dark-mode #no-result-row td {
+    color: var(--text-muted) !important;
+}
+
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้แถว (Hover) */
+body.dark-mode tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 2. ปรับแต่ง Modal และ Input */
+body.dark-mode .modal-content {
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    color: #f1f5f9;
+}
+
+body.dark-mode .modal-header h2 {
+    color: #fdef2e;
+}
+
+/* ช่องเลือก Role (Select Box) และ Input ค้นหา */
+body.dark-mode select, 
+body.dark-mode input {
+    background-color: #3d3d3d;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+/* ปุ่มปิด Modal (Close Button) */
+body.dark-mode .close {
+    color: #aaa;
+}
+body.dark-mode .close:hover {
+    color: #fff;
+}
+
+/* 3. ปรับแต่งปุ่ม Action ในตาราง */
+body.dark-mode .btn-edit {
+    background-color: #fdef2e; /* คงสีเหลืองไว้ แต่ปรับตัวหนังสือให้อ่านง่าย */
+    color: #1f1f1f;
+}
+
+body.dark-mode .btn-history {
+    background-color: #444;
+    color: #fff;
+    border: 1px solid #666;
+}   
+
+body.dark-mode .table-wrapper {
+    background: #242424;
+
+}
+
+body.dark-mode .ad-H{
+    background-color: #242419;
+}
+
+/* ================= Dark Mode: Usage Page ================= */
+
+/* 1. เปลี่ยนสีกล่องข้อความหลัก (ต้องใช้ !important ทับ inline style เดิม) */
+body.dark-mode .usage-card {
+    background-color: #2d2d2d !important;
+    color: #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+}
+
+/* 2. เปลี่ยนสีหัวข้อ */
+body.dark-mode .usage-card h2 {
+    color: #fdef2e;
+}
+
+/* 3. เปลี่ยนสีหัวตาราง (Override สีเทา #f4f4f4 เดิม) */
+body.dark-mode .bill-table thead tr {
+    background-color: #3d3d3d !important;
+}
+
+body.dark-mode .bill-table th {
+    color: #fdef2e;
+}
+
+/* 4. เปลี่ยนสีตัวหนังสือในตาราง */
+body.dark-mode .bill-table td {
+    color: #f1f5f9;
+    border-bottom: 1px solid #ececec; /* เพิ่มเส้นคั่นบางๆ */
+}
+
+/* (แถม) ทำให้แถวตารางเปลี่ยนสีเมื่อเอาเมาส์ชี้ */
+body.dark-mode .bill-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}   
+
+body.dark-mode .section-title{
+    color:white;
+}
+
+body.dark-mode .card-no-padding{
+    background : #242424;
+}
+
+body.dark-mode .usage-item .info h3{
+    color:rgb(214, 214, 214);
+}
+
+body.dark-mode .usage-item .info p{
+    color: #90a1b9;
+}
+
+body.dark-mode .status-badge{
+    background: #a6e4c9;
+    border-left: #94e7c3;
+}
+body.dark-mode .table-responsive{
+    border :rgb(0, 0, 0)
+}
+body.dark-mode .billing-section{
+    background : #242424
+}
+
+body.dark-mode .history-controls{
+    background : #3d3d3d;
+}
+
+body.dark-mode .bill-table td{
+    background : #444;
+}
+
+body.dark-mode .date-group-header td{
+    border-top: 2px solid #fdef2e
+}
+
+body.dark-mode .ad-Ht{
+    color: #d6d6d6;
+}
+
+body.dark-mode .profile-info{
+    background: #202020;
+}
+
+/* ================= Pagination Styles ================= */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 5px;
+}
+
+.page-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.page-btn:hover {
+    background-color: #fdef2e;
+    color: #1f1f1f;
+    border-color: #fdef2e;
+}
+
+.page-btn.active {
+    background-color: #fdef2e; /* สีเหลืองธีมหลัก */
+    color: #1f1f1f;
+    font-weight: bold;
+    border-color: #fdef2e;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc;
+}
+
+/* Dark Mode Support */
+body.dark-mode .page-btn {
+    background-color: #3d3d3d;
+    color: #fff;
+    border-color: #555;
+}
+
+body.dark-mode .page-btn:hover,
+body.dark-mode .page-btn.active {
+    background-color: #fdef2e;
+    color: #1f1f1f;
+}
+
+body.dark-mode .modal-content h2{
+    color: #ffffff;
 }
