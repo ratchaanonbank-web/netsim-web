@@ -4,9 +4,12 @@ const SUPABASE_URL = "https://mdwdzmkgehxwqotczmhh.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kd2R6bWtnZWh4d3FvdGN6bWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0ODg5MjksImV4cCI6MjA4MjA2NDkyOX0.lthMFiCQjq6ufGBkk0qs3nET6V3WTdprIZZQ4hM4R6M";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// --- [ส่วนที่ 1] ตัวแปร Global ---
 let globalHistoryData = [];
+let currentPage = 1;
+const datesPerPage = 2; // โชว์ทีละ 2 วัน
 
-// ฟังก์ชันคำนวณวันหมดอายุ (dd/mm/yyyy)
+// ฟังก์ชันคำนวณวันหมดอายุ
 function calcExpireDate(purchaseDate, serviceLife) {
     const d = new Date(purchaseDate);
     d.setDate(d.getDate() + serviceLife);
@@ -45,7 +48,6 @@ async function init() {
                 )
             `)
             .eq("id", userId)
-            // --- จุดสำคัญ 1: ต้องเป็น true เพื่อให้ของใหม่ไปอยู่ท้ายสุด ---
             .order("purchase_date", { ascending: true });
 
         if (error) throw error;
@@ -72,7 +74,6 @@ function renderActivePackages(history) {
     let netItems = [], streamItems = [];
     let hasActive = false;
 
-    // ข้อมูล history เรียงจาก เก่า -> ใหม่ อยู่แล้วตาม Query
     history.forEach(item => {
         if (item.purchase_detail) {
             item.purchase_detail.forEach(detail => {
@@ -90,7 +91,6 @@ function renderActivePackages(history) {
                 const daysLeft = getDaysRemaining(item.purchase_date, serviceLife);
                 if (daysLeft > 0) {
                     hasActive = true;
-                    // push ใส่ array ตามลำดับ (เก่าเข้าก่อน ใหม่เข้าหลัง)
                     if (isNet) netItems.push({ ...item, daysLeft, speed, name, serviceLife }); 
                     else streamItems.push({ ...item, daysLeft, name, serviceLife });
                 }
@@ -104,7 +104,6 @@ function renderActivePackages(history) {
         let finalHTML = "";
         if (netItems.length > 0) {
             finalHTML += `<h4 class="usage-title net">Internet Packages</h4>`;
-            // map แสดงผล จะแสดงจาก บน(เก่า) -> ล่าง(ใหม่)
             finalHTML += netItems.map(item => createActiveCardHTML(item, true)).join("");
         }
         if (streamItems.length > 0) {
@@ -135,16 +134,21 @@ function createActiveCardHTML(item, isNet) {
         </div>`;
 }
 
+// --- [ส่วนที่ 2] Billing History (เพิ่มยอดรวมท้ายวัน) ---
 function renderBillingHistory(data) {
     const tbody = document.getElementById("billing-table-body");
+    const paginationDiv = document.getElementById("pagination");
     if(!tbody) return;
+    
     tbody.innerHTML = "";
+    if (paginationDiv) paginationDiv.innerHTML = "";
 
     if (data.length === 0) {
         tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px;'>No history found.</td></tr>";
         return;
     }
 
+    // 1. Group Data
     const groupedData = {};
     data.forEach(item => {
         const rawDate = new Date(item.purchase_date);
@@ -153,22 +157,34 @@ function renderBillingHistory(data) {
         groupedData[dateKey].push(item);
     });
 
-    // --- จุดสำคัญ 2: เรียงวันที่ a - b (น้อยไปมาก = เก่าไปใหม่) ---
-    // ผลลัพธ์: วันที่เก่าสุดอยู่บนสุด -> วันที่ล่าสุดอยู่ล่างสุด
+    // 2. Sort Date
     const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
 
-    sortedDates.forEach(dateKey => {
+    // --- Logic แบ่งหน้า ---
+    const totalPages = Math.ceil(sortedDates.length / datesPerPage);
+    if (currentPage > totalPages) currentPage = 1;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * datesPerPage;
+    const endIndex = startIndex + datesPerPage;
+    const datesToShow = sortedDates.slice(startIndex, endIndex);
+
+    // 3. วนลูปแสดงผล
+    datesToShow.forEach(dateKey => {
         const itemsInDate = groupedData[dateKey];
         
         const displayDate = new Date(dateKey).toLocaleDateString("en-GB", {
             day: 'numeric', month: 'long', year: 'numeric'
         });
 
+        // หัวข้อวันที่
         tbody.innerHTML += `
             <tr class="date-group-header">
                 <td colspan="3">${displayDate}</td>
             </tr>
         `;
+
+        let dailyTotal = 0; // ✅ ตัวแปรเก็บยอดรวมของวันนั้น
 
         itemsInDate.forEach(historyItem => {
             if (historyItem.purchase_detail) {
@@ -184,6 +200,8 @@ function renderBillingHistory(data) {
                     }
                     if (detail.price_logs) price = detail.price_logs.price;
 
+                    dailyTotal += price; // ✅ บวกราคาสินค้าเข้ายอดรวม
+
                     tbody.innerHTML += `
                         <tr class="bill-item-row">
                             <td class="bill-item-name">${name}</td>
@@ -194,10 +212,62 @@ function renderBillingHistory(data) {
                 });
             }
         });
+
+        // ✅ สร้างแถวสรุปยอดรวม (Total) ท้ายรายการของวันนั้น
+        tbody.innerHTML += `
+            <tr style="background-color: rgba(0,0,0,0.02); font-weight: bold; border-top: 1px dashed #ccc;">
+                <td colspan="2" style="text-align: right; padding: 10px 15px;">Total :</td>
+                <td style="padding: 10px 15px; color: #ff4646; text-shadow: 0px 0px 1px #333;">${dailyTotal.toLocaleString()} THB</td>
+            </tr>
+            <tr style="height: 10px; border:none;"></tr> `;
     });
+
+    if (paginationDiv && totalPages > 1) {
+        setupUsagePagination(totalPages, paginationDiv, data);
+    }
 }
 
+// --- [ส่วนที่ 3] ปุ่ม Pagination ---
+function setupUsagePagination(totalPages, container, currentDataList) {
+    const prevBtn = document.createElement("button");
+    prevBtn.innerHTML = "❮";
+    prevBtn.className = "page-btn";
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderBillingHistory(currentDataList);
+        }
+    };
+    container.appendChild(prevBtn);
+
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+        btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+        btn.onclick = () => {
+            currentPage = i;
+            renderBillingHistory(currentDataList);
+        };
+        container.appendChild(btn);
+    }
+
+    const nextBtn = document.createElement("button");
+    nextBtn.innerHTML = "❯";
+    nextBtn.className = "page-btn";
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderBillingHistory(currentDataList);
+        }
+    };
+    container.appendChild(nextBtn);
+}
+
+// --- [ส่วนที่ 4] Filter ---
 window.filterHistoryByDate = function(selectedDate) {
+    currentPage = 1; 
     if (!selectedDate) {
         renderBillingHistory(globalHistoryData);
         return;
@@ -210,6 +280,7 @@ window.filterHistoryByDate = function(selectedDate) {
 }
 
 window.resetDateFilter = function() {
+    currentPage = 1; 
     document.getElementById("dateFilter").value = "";
     renderBillingHistory(globalHistoryData);
 }
