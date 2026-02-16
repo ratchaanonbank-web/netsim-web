@@ -8,10 +8,16 @@ let allUsersData = [];
 let currentPage = 1;
 const rowsPerPage = 10;
 
-// --- ส่วนที่เพิ่ม: ตัวแปรสำหรับแบ่งหน้าใน History Modal ---
+// --- ตัวแปรสำหรับ History Modal ---
+let allHistoryData = [];      
 let currentHistoryGrouped = {}; 
 let historyPage = 1;
-const historyDatesPerPage = 2; // แสดงผลทีละ 2 วันต่อหน้า
+
+// ✅ Config การแบ่งหน้า (Hybrid Logic)
+const historyNormalDatesPerPage = 3; // วันปกติให้โชว์ 3 วันต่อหน้า
+const historyHeavyDayThreshold = 4;  // ถ้าวันไหนซื้อ >= 4 ชิ้น ให้แยกเป็นหน้าเดียว
+
+let currentHistorySort = 'desc'; 
 
 window.onload = loadUsers;
 
@@ -21,17 +27,9 @@ async function loadUsers() {
         .select('*')
         .order('id', { ascending: false });
 
-    if (error) {
-        console.error("Error loading users:", error);
-        return;
-    }
+    if (error) { console.error("Error loading users:", error); return; }
     allUsersData = users;
     renderTable(users);
-}
-
-function isHAD() {
-    const user = JSON.parse(localStorage.getItem("user"));
-    return user && user.role === "HAD";
 }
 
 function renderTable(users) {
@@ -50,31 +48,25 @@ function renderTable(users) {
     const userStored = localStorage.getItem("user");
     const myId = localStorage.getItem("id"); 
     let myRole = "";
-    
     if (userStored) {
-        try {
-            const userObj = JSON.parse(userStored);
-            myRole = userObj.role;
-        } catch (e) {
-            console.error("Error parsing user data");
-        }
+        try { const userObj = JSON.parse(userStored); myRole = userObj.role; } catch (e) {}
     }
 
     usersToShow.forEach(user => {
-        let badgeClass = "badge-user";
-        if (user.role === 'admin') badgeClass = "badge-admin";
-        if (user.role === 'HAD') badgeClass = "badge-had";
+         let badgeClass = "badge-user";
+         if (user.role === 'admin') badgeClass = "badge-admin";
+         if (user.role === 'HAD') badgeClass = "badge-had";
 
-        let roleBtn = "";
-        if (myRole === 'HAD' && user.id !== myId) {
-            roleBtn = `<button class="action-btn btn-edit" onclick="openRoleModal('${user.id}', '${user.role}')">Edit Role</button>`;
-        }
+         let roleBtn = "";
+         if (myRole === 'HAD' && user.id !== myId) {
+             roleBtn = `<button class="action-btn btn-edit" onclick="openRoleModal('${user.id}', '${user.role}')">Edit Role</button>`;
+         }
 
-        const fullName = (user.name || '') + " " + (user.surname || '');
-        const displayName = fullName.trim() === "" ? "-" : fullName;
-        const phone = user.phonenumber || user.phone_number || '-';
-
-        const row = `
+         const fullName = (user.name || '') + " " + (user.surname || '');
+         const displayName = fullName.trim() === "" ? "-" : fullName;
+         const phone = user.phonenumber || user.phone_number || '-';
+         
+         const row = `
             <tr>
                 <td>${user.email}</td>
                 <td>${displayName}</td>
@@ -118,9 +110,21 @@ function setupPagination(totalPages, container, currentDataList) {
     container.appendChild(nextBtn);
 }
 
+
+// ===========================================
+// ✅ ส่วนจัดการ History Modal (Logic Hybrid)
+// ===========================================
+
 window.viewHistory = async function(userId, email) {
     document.getElementById("historyUserEmail").innerText = "User: " + email;
     
+    // รีเซ็ตค่า Input
+    const dateInput = document.getElementById("historyDateFilter");
+    const sortSelect = document.getElementById("historySort");
+    if (dateInput) dateInput.value = ""; 
+    if (sortSelect) sortSelect.value = "desc";
+    currentHistorySort = "desc";
+
     const { data: history, error } = await supabase
         .from("purchase_history")
         .select(`
@@ -134,38 +138,108 @@ window.viewHistory = async function(userId, email) {
         .eq("id", userId) 
         .order("purchase_date", { ascending: false });
 
-    if (error) {
-        console.error(error);
-        return;
+    if (error) { console.error(error); return; }
+
+    allHistoryData = history || [];
+    filterHistoryByDate(); // เรียกฟังก์ชันกรองและแสดงผล
+    
+    document.getElementById("historyModal").style.display = "block";
+}
+
+// ฟังก์ชันกรองข้อมูลตามวันที่
+window.filterHistoryByDate = function() {
+    const selectedDate = document.getElementById("historyDateFilter").value;
+    
+    let filteredData = allHistoryData;
+    if (selectedDate) {
+        filteredData = allHistoryData.filter(h => {
+            const itemDate = new Date(h.purchase_date).toISOString().split('T')[0];
+            return itemDate === selectedDate;
+        });
     }
 
+    // จัดกลุ่มข้อมูล
     currentHistoryGrouped = {};
-    history.forEach(h => {
+    filteredData.forEach(h => {
         const rawDate = new Date(h.purchase_date);
         const dateKey = rawDate.toISOString().split('T')[0];
         if (!currentHistoryGrouped[dateKey]) currentHistoryGrouped[dateKey] = [];
         currentHistoryGrouped[dateKey].push(h);
     });
 
-    historyPage = 1; 
-    renderHistoryTable(); 
-    document.getElementById("historyModal").style.display = "block";
+    historyPage = 1;
+    renderHistoryTable();
 }
 
+window.resetHistoryFilter = function() {
+    document.getElementById("historyDateFilter").value = "";
+    filterHistoryByDate();
+}
+
+window.setHistorySort = function(sortValue) {
+    currentHistorySort = sortValue;
+    historyPage = 1;
+    renderHistoryTable();
+}
+
+// ✅ Render History แบบ Hybrid (แยกวันเยอะ / รวมวันน้อย)
 function renderHistoryTable() {
     const tbody = document.getElementById("historyTableBody");
     tbody.innerHTML = "";
 
-    const sortedDates = Object.keys(currentHistoryGrouped).sort((a, b) => new Date(b) - new Date(a));
-    const totalPages = Math.ceil(sortedDates.length / historyDatesPerPage);
+    // เรียงลำดับวันที่
+    const sortedDates = Object.keys(currentHistoryGrouped).sort((a, b) => {
+        const dateA = new Date(a);
+        const dateB = new Date(b);
+        return currentHistorySort === 'desc' ? dateB - dateA : dateA - dateB;
+    });
 
+    // --- Logic แบ่งหน้าแบบ Hybrid ---
+    let pages = [];
+    let currentBatch = [];
+
+    sortedDates.forEach(dateKey => {
+        // นับจำนวนสินค้าในวันนี้
+        let dailyItemCount = 0;
+        if (currentHistoryGrouped[dateKey]) {
+            currentHistoryGrouped[dateKey].forEach(h => {
+                if(h.purchase_detail) dailyItemCount += h.purchase_detail.length;
+            });
+        }
+
+        if (dailyItemCount >= historyHeavyDayThreshold) {
+            // [เงื่อนไข 1]: ถ้าวันนี้ซื้อ >= 4 ชิ้น ให้แยกเป็นหน้าเดียว
+            if (currentBatch.length > 0) {
+                pages.push(currentBatch);
+                currentBatch = [];
+            }
+            pages.push([dateKey]); // แยกหน้านี้เดี่ยวๆ
+
+        } else {
+            // [เงื่อนไข 2]: วันปกติ (< 4 ชิ้น) รวมกันได้สูงสุด 3 วัน
+            currentBatch.push(dateKey);
+            if (currentBatch.length >= historyNormalDatesPerPage) {
+                pages.push(currentBatch);
+                currentBatch = [];
+            }
+        }
+    });
+
+    // เก็บเศษที่เหลือ
+    if (currentBatch.length > 0) pages.push(currentBatch);
+
+    const totalPages = pages.length;
+    
     if (sortedDates.length === 0) {
         tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding: 20px;'>No purchase history found.</td></tr>";
+        document.getElementById("historyPagination").innerHTML = "";
         return;
     }
 
-    const startIndex = (historyPage - 1) * historyDatesPerPage;
-    const datesToShow = sortedDates.slice(startIndex, startIndex + historyDatesPerPage);
+    if (historyPage > totalPages) historyPage = 1;
+
+    // ดึงวันที่ที่จะแสดงในหน้านี้
+    const datesToShow = pages[historyPage - 1] || [];
 
     datesToShow.forEach(dateKey => {
         const itemsInDate = currentHistoryGrouped[dateKey];
@@ -175,7 +249,7 @@ function renderHistoryTable() {
 
         tbody.innerHTML += `
             <tr class="ad-H">
-                <td colspan="3" class="a" >${displayDate}</td>
+                <td colspan="3" class="a" color: #333; font-weight: bold; padding: 10px;">${displayDate}</td>
             </tr>
         `;
 
@@ -203,13 +277,12 @@ function renderHistoryTable() {
         });
         tbody.innerHTML += `
             <tr style="background: rgba(0,0,0,0.03); font-weight: bold; border-bottom: 2px solid #ddd;">
-                <td colspan="2" style="text-align: right; padding: 10px;">Total:</td>
-                <td style="padding: 10px; color: #ff4646;">${dailyTotal.toLocaleString()} THB</td>
+                <td colspan="2" style="text-align: right; padding: 10px;">Daily Total:</td>
+                <td style="padding: 10px; color: #d97706;">${dailyTotal.toLocaleString()} THB</td>
             </tr>
         `;
     });
 
-    // --- ส่วนจัดการ Pagination ใน Modal ให้เป๊ะตามตารางหลัก ---
     let historyPaginationDiv = document.getElementById("historyPagination");
     if (!historyPaginationDiv) {
         historyPaginationDiv = document.createElement("div");
@@ -225,7 +298,6 @@ function renderHistoryTable() {
     }
 }
 
-// ฟังก์ชันสร้างปุ่มตัวเลขใน Modal (ถอดแบบ setupPagination มาเป๊ะๆ)
 function setupHistoryPagination(totalPages, container) {
     const prevBtn = document.createElement("button");
     prevBtn.innerText = "❮";
