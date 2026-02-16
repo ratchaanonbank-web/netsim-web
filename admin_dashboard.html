@@ -12,7 +12,7 @@
 
 <header class="navbar">
     <div class="logo" onclick="window.location.href='home.html'">
-        NET<span>SIM</span> Admin
+        NET<span>SIM</span> Admin 
     </div>
     <button id="themeToggleBtn" class="login-btn" onclick="toggleTheme()" style="margin-left: auto; margin-right: 10px; background: transparent; border: 1px solid #fdef2e; color: #fdef2e;">
         🌙
@@ -47,22 +47,24 @@
             <input type="text" id="searchInput" class="search-box" placeholder="Search email or username...">
         </div>
         
-        <table id="userTable" style="table-layout: fixed; width: 100%;">
-            <colgroup>
-                <col style="width: 25%;"> <col style="width: 25%;"> <col style="width: 15%;"> <col style="width: 10%;"> <col style="width: 25%;"> </colgroup>
-            <thead>
-                <tr>
-                    <th>Email</th>
-                    <th>Username</th> 
-                    <th>Phone</th>
-                    <th>Role</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="userTableBody">
+        <div class="user-table-scroll">
+            <table id="userTable" style="table-layout: fixed; width: 100%; border-collapse: collapse;">
+                <colgroup>
+                    <col style="width: 25%;"> <col style="width: 25%;"> <col style="width: 15%;"> <col style="width: 10%;"> <col style="width: 25%;"> 
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Username</th> 
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
                 </tbody>
-        </table>
-
+            </table>
+        </div>
         <div id="pagination" class="pagination-container"></div>
     </div>
 </div>
@@ -71,8 +73,29 @@
     <div class="modal-content">
         <h2>Purchase History</h2>
         <p id="historyUserEmail" style="color: gray; margin-bottom: 10px;"></p>
+        
+        <div class="history-controls" style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px; flex-wrap: wrap;">
+            
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label for="historySort" style="font-weight: bold; font-size: 14px;">Sort:</label>
+                <select id="historySort" class="modal-select" style="width: auto; padding: 5px; cursor: pointer;" onchange="setHistorySort(this.value)">
+                    <option value="desc">Newest First</option>
+                    <option value="asc">Oldest First</option>
+                </select>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label for="historyDateFilter" style="font-weight: bold; font-size: 14px;">Date:</label>
+                <input type="date" id="historyDateFilter" class="modal-select" style="width: auto; padding: 5px;">
+                <button class="action-btn btn-edit" onclick="filterHistoryByDate()" style="padding: 5px 12px; font-size: 13px;">Filter</button>
+                <button class="btn-outline" onclick="resetHistoryFilter()" style="padding: 5px 12px; font-size: 13px;">Show All</button>
+            </div>
+
+        </div>
+
         <hr>
-        <div class="table-wrapper" style="box-shadow: none; padding: 0;">
+        
+        <div class="fixed-table-container">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="background-color: var(--card-bg);">
@@ -82,7 +105,7 @@
                     </tr>
                 </thead>
                 <tbody id="historyTableBody">
-                    </tbody>
+                </tbody>
             </table>
         </div>
 
