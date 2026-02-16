@@ -2101,3 +2101,213 @@ body.dark-mode .user-table-scroll thead th {
     background-color: #2b2b2b;
     color: #fdef2e;
 }
+
+/* =========================================
+   9. RESPONSIVE DESIGN (MOBILE & TABLET)
+   ========================================= */
+@media (max-width: 768px) {
+    /* --- 1. จัด Layout หลักใหม่ --- */
+    .admin-container {
+        padding: 10px;
+        margin-top: 60px; /* ลดระยะห่างด้านบน */
+        width: 100%;
+    }
+
+    .table-wrapper {
+        padding: 15px 10px;
+    }
+
+    /* --- 2. ส่วนหัว (Title + Search) เรียงแนวตั้ง --- */
+    .dashboard-header {
+        flex-direction: column;
+        align-items: stretch !important; /* ยืดให้เต็มความกว้าง */
+        gap: 15px;
+    }
+
+    .search-box {
+        max-width: 100%; /* ช่องค้นหาเต็มจอ */
+        width: 100%;
+    }
+
+    /* --- 3. แก้ไขตารางให้เลื่อนแนวนอนได้ (Horizontal Scroll) --- */
+    .user-table-scroll,
+    .fixed-table-container {
+        overflow-x: auto; /* เปิดให้เลื่อนซ้าย-ขวา */
+        -webkit-overflow-scrolling: touch; /* เลื่อนลื่นๆ บน iPhone */
+    }
+
+    /* บังคับตารางให้กว้างพอที่จะไม่บีบตัวหนังสือ (สำคัญ!) */
+    .user-table-scroll table,
+    .fixed-table-container table {
+        min-width: 700px; /* ถ้าหน้าจอเล็กกว่านี้ จะเกิด Scrollbar แนวนอน */
+        table-layout: auto !important; /* ยกเลิก Fixed Layout ชั่วคราว */
+    }
+
+    /* ปรับแต่งเซลล์ในตารางให้อ่านง่ายขึ้น */
+    th, td {
+        padding: 10px 8px; /* ลด Padding */
+        font-size: 13px;   /* ลดขนาดตัวอักษรนิดหน่อย */
+        white-space: nowrap; /* ห้ามตัดคำขึ้นบรรทัดใหม่ (เพื่อให้แถวสวยงาม) */
+    }
+
+    /* --- 4. ปรับ Modal (Popup) --- */
+    .modal-content {
+        width: 95%;        /* ขยายเกือบเต็มจอ */
+        margin: 15% auto;  /* ขยับลงมาหน่อย */
+        padding: 15px;
+        max-height: 85vh;  /* ห้ามสูงเกินจอ */
+        overflow-y: auto;  /* ถ้าเนื้อหาเยอะให้เลื่อนได้ */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* จัดส่วนควบคุม History (Filter/Date) ให้เรียงลงมา */
+    .history-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .history-controls > div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .history-controls input,
+    .history-controls select,
+    .history-controls button {
+        width: 100% !important; /* ปุ่มและช่องกรอกเต็มจอ */
+        margin: 0;
+    }
+
+    /* ตารางใน Modal ปรับความสูงให้พอดีมือถือ */
+    .fixed-table-container {
+        height: auto;
+        max-height: 40vh;
+    }
+
+    /* --- 5. ปุ่ม Action ต่างๆ --- */
+    .modal-footer {
+        flex-direction: column-reverse; /* ปุ่มปิดอยู่ล่าง */
+        gap: 10px;
+    }
+
+    .modal-footer button {
+        width: 100%;
+    }
+}
+
+/* =========================================
+   10. MOBILE RESPONSIVE (Usage Page)
+   ========================================= */
+@media (max-width: 768px) {
+    
+    /* --- 1. ปรับ Container ของหน้า Usage --- */
+    .usage-container {
+        padding: 10px;
+        margin-top: 15px;
+        max-width: 100%;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        padding-left: 10px;
+    }
+
+    /* --- 2. การ์ดแพ็คเกจปัจจุบัน (Active Packages) --- */
+    .usage-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .card-no-padding {
+        padding: 12px;
+    }
+
+    .usage-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .usage-item .metrics {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 8px;
+        margin-top: 5px;
+    }
+
+    /* --- 3. ตารางประวัติการซื้อ (Billing History) - แบบพอดีจอ ไม่ต้องเลื่อน --- */
+    .billing-section {
+        padding: 10px 5px !important;
+    }
+
+    .table-responsive {
+        height: auto !important;      /* เปลี่ยนจาก 300px เป็น auto เพื่อให้ยาวตามเนื้อหา */
+        max-height: none !important;  /* ยกเลิกการจำกัดความสูง */
+        overflow: visible !important;  /* ยกเลิกการเลื่อนแนวตั้งและแนวนอน */
+        border: 1px solid #eee;
+        border-radius: 8px;
+    }
+
+    .bill-table {
+        min-width: 100% !important;   /* เปลี่ยนจาก 450px เป็น 100% เพื่อให้กว้างเท่าหน้าจอ */
+        width: 100% !important;
+        table-layout: fixed;          /* บังคับคอลัมน์ให้แบ่งพื้นที่ตามสัดส่วนที่กำหนด */
+    }
+
+    /* แบ่งพื้นที่คอลัมน์ให้เหมาะสม (Package 50%, Type 25%, Price 25%) */
+    .bill-table colgroup col:nth-child(1) { width: 50% !important; }
+    .bill-table colgroup col:nth-child(2) { width: 25% !important; }
+    .bill-table colgroup col:nth-child(3) { width: 25% !important; }
+
+    .bill-table th, 
+    .bill-table td {
+        padding: 8px 4px !important;
+        font-size: 11px !important;   /* ปรับตัวอักษรให้เล็กลงเพื่อให้พอดีเนื้อที่ */
+        word-break: break-word;       /* ตัดคำที่ยาวเกินไปขึ้นบรรทัดใหม่ */
+        white-space: normal !important; 
+    }
+
+    .bill-item-name {
+        padding-left: 5px !important;
+        line-height: 1.3;
+    }
+
+    .date-group-header td {
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+        background-color: #fffde7;
+    }
+
+    .bill-table tr[style*="background-color: rgba(0,0,0,0.02)"] td {
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+    }
+
+    /* --- 4. ปุ่ม Pagination --- */
+    .pagination-container {
+        margin-top: 15px;
+        gap: 3px;
+        flex-wrap: wrap; /* ให้ปุ่มเรียงลงมาได้ถ้าหน้าจอแคบมาก */
+    }
+
+    .page-btn {
+        padding: 5px 8px;
+        font-size: 11px;
+        min-width: 25px;
+    }
+
+    /* --- 5. ปุ่ม Back to Home --- */
+    .btn-outline {
+        width: 100% !important;
+        padding: 10px;
+        font-size: 14px;
+    }
+}
