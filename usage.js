@@ -7,39 +7,38 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // --- [ส่วนที่ 1] ตัวแปร Global ---
 let globalHistoryData = [];
 let currentPage = 1;
-const datesPerPage = 2; // โชว์ทีละ 2 วัน
 
-// ฟังก์ชันคำนวณวันหมดอายุ (dd/mm/yyyy)
+// Config การแบ่งหน้า
+const normalDatesPerPage = 3; // วันปกติให้โชว์ 3 วันต่อหน้า
+const heavyDayThreshold = 4;  // ถ้าวันไหนซื้อ >= 4 ชิ้น ให้แยกเป็นหน้าเดียว
+
+let currentSortOrder = 'desc'; 
+
 function calcExpireDate(purchaseDate, serviceLife) {
     const d = new Date(purchaseDate);
-    d.setDate(d.getDate() + Number(serviceLife)); // แปลง serviceLife เป็นตัวเลขเพื่อความชัวร์
+    d.setDate(d.getDate() + Number(serviceLife));
     return d.toLocaleDateString("en-GB"); 
 }
 
-// ฟังก์ชันคำนวณวันคงเหลือ (แก้ไขให้นับถึงสิ้นวัน)
 function getDaysRemaining(purchaseDate, serviceLife) {
     const d = new Date(purchaseDate);
     d.setDate(d.getDate() + Number(serviceLife));
-    d.setHours(23, 59, 59, 999); // ✅ ตั้งเวลานับถึงสิ้นวัน
+    d.setHours(23, 59, 59, 999);
     
     const today = new Date();
     const diffTime = d - today;
     const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    return days >= 0 ? days : 0; // ไม่คืนค่าติดลบ
+    return days >= 0 ? days : 0;
 }
 
-// ฟังก์ชันเช็คสถานะ Active
 function isPackageActive(purchaseDate, serviceLife) {
     if (!serviceLife) return false;
     const expireDate = new Date(purchaseDate);
     expireDate.setDate(expireDate.getDate() + Number(serviceLife));
-    
-    // ตั้งเวลาหมดอายุเป็นสิ้นสุดวันนั้น (23:59:59)
     expireDate.setHours(23, 59, 59, 999);
-    
     const now = new Date();
-    return now <= expireDate; // ✅ ใช้ <= เพื่อให้รวมวินาทีสุดท้าย
+    return now <= expireDate;
 }
 
 async function init() {
@@ -79,11 +78,18 @@ async function init() {
                 filterHistoryByDate(this.value);
             });
         }
+        const sortSelect = document.getElementById("sortOrder");
+        if(sortSelect) {
+            sortSelect.addEventListener("change", function() {
+                currentSortOrder = this.value;
+                currentPage = 1;
+                renderBillingHistory(globalHistoryData);
+            });
+        }
 
     } catch (err) { console.error("Error:", err); }
 }
 
-// ✅ ปรับปรุงฟังก์ชันแสดง Active Packages
 function renderActivePackages(history) {
     const activeDiv = document.getElementById("active-package");
     if(!activeDiv) return;
@@ -108,7 +114,6 @@ function renderActivePackages(history) {
                     serviceLife = detail.entertainment_services.service_life;
                 }
 
-                // ✅ ใช้ isPackageActive ตัดสินใจว่าจะโชว์หรือไม่ (แทนการใช้ daysLeft > 0 แบบเดิม)
                 if (isPackageActive(item.purchase_date, serviceLife)) {
                     hasActive = true;
                     const daysLeft = getDaysRemaining(item.purchase_date, serviceLife);
@@ -141,8 +146,6 @@ function createActiveCardHTML(item, isNet) {
     const borderStyle = isNet ? "" : "border-top-color: #a855f7;";
     const subTitle = isNet ? `Speed ${item.speed} Mbps` : "Premium Subscription";
     
-    // เปลี่ยนสีป้าย ACTIVE ถ้าเหลือน้อยกว่า 1 วัน
-      
     return `
         <div class="card-no-padding" style="margin-bottom: 20px; ${borderStyle}">
             <div class="usage-item">
@@ -173,6 +176,7 @@ function renderBillingHistory(data) {
         return;
     }
 
+    // 1. จัดกลุ่มข้อมูลตามวัน
     const groupedData = {};
     data.forEach(item => {
         const rawDate = new Date(item.purchase_date);
@@ -181,18 +185,61 @@ function renderBillingHistory(data) {
         groupedData[dateKey].push(item);
     });
 
-    // เรียงวันที่ล่าสุดขึ้นก่อน (Active Package มักจะอยู่ล่าสุด) หรือ เก่าไปใหม่ตามที่คุณต้องการ
-    // ถ้าต้องการ เก่า -> ใหม่ ใช้ a - b
-    // ถ้าต้องการ ใหม่ -> เก่า ใช้ b - a
-    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(b) - new Date(a)); // ปรับเป็น ใหม่ -> เก่า ให้ดูง่ายขึ้น
+    // 2. เรียงลำดับวันที่
+    const sortedDates = Object.keys(groupedData).sort((a, b) => {
+        const dateA = new Date(a);
+        const dateB = new Date(b);
+        return currentSortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
 
-    const totalPages = Math.ceil(sortedDates.length / datesPerPage);
+    // ✅ Logic การแบ่งหน้าตามเงื่อนไขพิเศษ
+    let pages = [];
+    let currentBatch = [];
+
+    sortedDates.forEach(dateKey => {
+        // นับจำนวนสินค้าในวันนี้
+        let dailyItemCount = 0;
+        if (groupedData[dateKey]) {
+            groupedData[dateKey].forEach(h => {
+                if (h.purchase_detail) dailyItemCount += h.purchase_detail.length;
+            });
+        }
+
+        if (dailyItemCount >= heavyDayThreshold) {
+            // [เงื่อนไข 1]: ถ้าวันนี้ซื้อ >= 4 ชิ้น ให้แยกเป็นหน้าเดียว
+            
+            // ถ้ามีข้อมูลค้างใน Batch ให้ปิด Batch นั้นก่อน (สร้างหน้าเก่าให้เสร็จ)
+            if (currentBatch.length > 0) {
+                pages.push(currentBatch);
+                currentBatch = [];
+            }
+            
+            // ใส่วันนี้เข้าไปเป็นหน้าใหม่ (หน้าเดี่ยว)
+            pages.push([dateKey]);
+
+        } else {
+            // [เงื่อนไข 2]: วันปกติ รวมกันได้สูงสุด 3 วัน (normalDatesPerPage)
+            currentBatch.push(dateKey);
+
+            // ถ้าครบ 3 วันแล้ว ให้ตัดหน้า
+            if (currentBatch.length >= normalDatesPerPage) {
+                pages.push(currentBatch);
+                currentBatch = [];
+            }
+        }
+    });
+
+    // เก็บตกเศษที่เหลือลงหน้าสุดท้าย
+    if (currentBatch.length > 0) {
+        pages.push(currentBatch);
+    }
+
+    const totalPages = pages.length;
     if (currentPage > totalPages) currentPage = 1;
     if (currentPage < 1) currentPage = 1;
 
-    const startIndex = (currentPage - 1) * datesPerPage;
-    const endIndex = startIndex + datesPerPage;
-    const datesToShow = sortedDates.slice(startIndex, endIndex);
+    // ดึงวันที่ที่จะแสดงในหน้านี้
+    const datesToShow = pages[currentPage - 1] || [];
 
     datesToShow.forEach(dateKey => {
         const itemsInDate = groupedData[dateKey];
