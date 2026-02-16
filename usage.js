@@ -9,20 +9,37 @@ let globalHistoryData = [];
 let currentPage = 1;
 const datesPerPage = 2; // โชว์ทีละ 2 วัน
 
-// ฟังก์ชันคำนวณวันหมดอายุ
+// ฟังก์ชันคำนวณวันหมดอายุ (dd/mm/yyyy)
 function calcExpireDate(purchaseDate, serviceLife) {
     const d = new Date(purchaseDate);
-    d.setDate(d.getDate() + serviceLife);
+    d.setDate(d.getDate() + Number(serviceLife)); // แปลง serviceLife เป็นตัวเลขเพื่อความชัวร์
     return d.toLocaleDateString("en-GB"); 
 }
 
-// ฟังก์ชันคำนวณวันคงเหลือ
+// ฟังก์ชันคำนวณวันคงเหลือ (แก้ไขให้นับถึงสิ้นวัน)
 function getDaysRemaining(purchaseDate, serviceLife) {
     const d = new Date(purchaseDate);
-    d.setDate(d.getDate() + serviceLife);
+    d.setDate(d.getDate() + Number(serviceLife));
+    d.setHours(23, 59, 59, 999); // ✅ ตั้งเวลานับถึงสิ้นวัน
+    
     const today = new Date();
     const diffTime = d - today;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return days >= 0 ? days : 0; // ไม่คืนค่าติดลบ
+}
+
+// ฟังก์ชันเช็คสถานะ Active
+function isPackageActive(purchaseDate, serviceLife) {
+    if (!serviceLife) return false;
+    const expireDate = new Date(purchaseDate);
+    expireDate.setDate(expireDate.getDate() + Number(serviceLife));
+    
+    // ตั้งเวลาหมดอายุเป็นสิ้นสุดวันนั้น (23:59:59)
+    expireDate.setHours(23, 59, 59, 999);
+    
+    const now = new Date();
+    return now <= expireDate; // ✅ ใช้ <= เพื่อให้รวมวินาทีสุดท้าย
 }
 
 async function init() {
@@ -66,6 +83,7 @@ async function init() {
     } catch (err) { console.error("Error:", err); }
 }
 
+// ✅ ปรับปรุงฟังก์ชันแสดง Active Packages
 function renderActivePackages(history) {
     const activeDiv = document.getElementById("active-package");
     if(!activeDiv) return;
@@ -79,6 +97,7 @@ function renderActivePackages(history) {
             item.purchase_detail.forEach(detail => {
                 let name = "-", serviceLife = 0, speed = "-";
                 let isNet = false;
+                
                 if (detail.internet_packages) {
                     name = detail.internet_packages.package_name;
                     serviceLife = detail.internet_packages.service_life;
@@ -88,9 +107,12 @@ function renderActivePackages(history) {
                     name = detail.entertainment_services.service_name;
                     serviceLife = detail.entertainment_services.service_life;
                 }
-                const daysLeft = getDaysRemaining(item.purchase_date, serviceLife);
-                if (daysLeft > 0) {
+
+                // ✅ ใช้ isPackageActive ตัดสินใจว่าจะโชว์หรือไม่ (แทนการใช้ daysLeft > 0 แบบเดิม)
+                if (isPackageActive(item.purchase_date, serviceLife)) {
                     hasActive = true;
+                    const daysLeft = getDaysRemaining(item.purchase_date, serviceLife);
+                    
                     if (isNet) netItems.push({ ...item, daysLeft, speed, name, serviceLife }); 
                     else streamItems.push({ ...item, daysLeft, name, serviceLife });
                 }
@@ -118,6 +140,9 @@ function createActiveCardHTML(item, isNet) {
     const expireDate = calcExpireDate(item.purchase_date, item.serviceLife);
     const borderStyle = isNet ? "" : "border-top-color: #a855f7;";
     const subTitle = isNet ? `Speed ${item.speed} Mbps` : "Premium Subscription";
+    
+    // เปลี่ยนสีป้าย ACTIVE ถ้าเหลือน้อยกว่า 1 วัน
+      
     return `
         <div class="card-no-padding" style="margin-bottom: 20px; ${borderStyle}">
             <div class="usage-item">
@@ -128,13 +153,13 @@ function createActiveCardHTML(item, isNet) {
                 </div>
                 <div class="metrics">
                     <div class="value-group"><div class="value">${item.daysLeft}</div><div class="unit">Days Left</div></div>
-                    <div class="status-badge" >ACTIVE</div>
+                    <div class="status-badge">ACTIVE</div>
                 </div>
             </div>
         </div>`;
 }
 
-// --- [ส่วนที่ 2] Billing History (เพิ่มยอดรวมท้ายวัน) ---
+// --- [ส่วนที่ 2] Billing History ---
 function renderBillingHistory(data) {
     const tbody = document.getElementById("billing-table-body");
     const paginationDiv = document.getElementById("pagination");
@@ -148,7 +173,6 @@ function renderBillingHistory(data) {
         return;
     }
 
-    // 1. Group Data
     const groupedData = {};
     data.forEach(item => {
         const rawDate = new Date(item.purchase_date);
@@ -157,10 +181,11 @@ function renderBillingHistory(data) {
         groupedData[dateKey].push(item);
     });
 
-    // 2. Sort Date
-    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
+    // เรียงวันที่ล่าสุดขึ้นก่อน (Active Package มักจะอยู่ล่าสุด) หรือ เก่าไปใหม่ตามที่คุณต้องการ
+    // ถ้าต้องการ เก่า -> ใหม่ ใช้ a - b
+    // ถ้าต้องการ ใหม่ -> เก่า ใช้ b - a
+    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(b) - new Date(a)); // ปรับเป็น ใหม่ -> เก่า ให้ดูง่ายขึ้น
 
-    // --- Logic แบ่งหน้า ---
     const totalPages = Math.ceil(sortedDates.length / datesPerPage);
     if (currentPage > totalPages) currentPage = 1;
     if (currentPage < 1) currentPage = 1;
@@ -169,42 +194,46 @@ function renderBillingHistory(data) {
     const endIndex = startIndex + datesPerPage;
     const datesToShow = sortedDates.slice(startIndex, endIndex);
 
-    // 3. วนลูปแสดงผล
     datesToShow.forEach(dateKey => {
         const itemsInDate = groupedData[dateKey];
-        
         const displayDate = new Date(dateKey).toLocaleDateString("en-GB", {
             day: 'numeric', month: 'long', year: 'numeric'
         });
 
-        // หัวข้อวันที่
         tbody.innerHTML += `
             <tr class="date-group-header">
                 <td colspan="3">${displayDate}</td>
             </tr>
         `;
 
-        let dailyTotal = 0; // ✅ ตัวแปรเก็บยอดรวมของวันนั้น
+        let dailyTotal = 0; 
 
         itemsInDate.forEach(historyItem => {
             if (historyItem.purchase_detail) {
                 historyItem.purchase_detail.forEach(detail => {
-                    let name = "-", type = "-", price = 0;
+                    let name = "-", type = "-", price = 0, serviceLife = 0;
 
                     if (detail.internet_packages) {
                         name = detail.internet_packages.package_name;
+                        serviceLife = detail.internet_packages.service_life; 
                         type = "Internet";
                     } else if (detail.entertainment_services) {
                         name = detail.entertainment_services.service_name;
+                        serviceLife = detail.entertainment_services.service_life;
                         type = "Entertainment";
                     }
                     if (detail.price_logs) price = detail.price_logs.price;
 
-                    dailyTotal += price; // ✅ บวกราคาสินค้าเข้ายอดรวม
+                    const isActive = isPackageActive(historyItem.purchase_date, serviceLife);
+                    const statusBadge = isActive 
+                        ? `<span style="background:#28a745; color:white; padding:2px 8px; border-radius:10px; font-size:11px; margin-left:8px; font-weight:bold;">ACTIVE</span>` 
+                        : "";
+
+                    dailyTotal += price; 
 
                     tbody.innerHTML += `
                         <tr class="bill-item-row">
-                            <td class="bill-item-name">${name}</td>
+                            <td class="bill-item-name">${name} ${statusBadge}</td>
                             <td>${type}</td>
                             <td class="bill-price-col">${price.toLocaleString()} THB</td>
                         </tr>
@@ -213,7 +242,6 @@ function renderBillingHistory(data) {
             }
         });
 
-        // ✅ สร้างแถวสรุปยอดรวม (Total) ท้ายรายการของวันนั้น
         tbody.innerHTML += `
             <tr style="background-color: rgba(0,0,0,0.02); font-weight: bold; border-top: 1px dashed #ccc;">
                 <td colspan="2" style="text-align: right; padding: 10px 15px;">Total :</td>
