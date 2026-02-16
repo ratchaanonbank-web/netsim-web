@@ -121,42 +121,12 @@ async function loadEntertainmentServices() {
     container.innerHTML = html;
 }
 
-/* ================= Check ซื้อซ้ำ ================= */
-async function hasPurchased(itemId, type) {
-    const userId = localStorage.getItem("id");
-    if (!userId) return false;
-
-    let query = supabase
-        .from("purchase_detail")
-        .select(`
-            detail_id,
-            purchase_history!inner(id)
-        `)
-        .eq("purchase_history.id", userId);
-
-    if (type === "internet") {
-        query = query.eq("package_id", itemId);
-    } else {
-        query = query.eq("service_id", itemId);
-    }
-
-    const { data, error } = await query;
-    if (error) {
-        console.error(error);
-        return false;
-    }
-
-    return data.length > 0;
-}
-
-/* ================= Open Purchase ================= */
-/* ================= Check สถานะการใช้งานตามวันหมดอายุ ================= */
-/* ================= Check usage status based on expiration date ================= */
+/* ================= Check สถานะการใช้งาน (ACTIVE / EXPIRED) ================= */
 async function getPackageStatus(itemId, type) {
     const userId = localStorage.getItem("id");
     if (!userId) return { isActive: false };
 
-    // Fetch the latest purchase record for this item
+    // ดึงประวัติการซื้อล่าสุดของไอเทมนี้
     const { data, error } = await supabase
         .from("purchase_detail")
         .select(`
@@ -169,7 +139,7 @@ async function getPackageStatus(itemId, type) {
         .order("purchase_history(purchase_date)", { ascending: false })
         .limit(1);
 
-    // 1. If never purchased or no data found -> Allow purchase
+    // 1. ถ้าไม่เคยซื้อเลย หรือไม่พบข้อมูล -> ให้ซื้อได้
     if (error || !data || data.length === 0) {
         return { isActive: false };
     }
@@ -180,21 +150,23 @@ async function getPackageStatus(itemId, type) {
         ? lastPurchase.internet_packages?.service_life 
         : lastPurchase.entertainment_services?.service_life;
 
-    // 2. Calculate expiration date (Purchase date + Service life)
+    if (!serviceLife) return { isActive: false };
+
+    // 2. คำนวณวันหมดอายุ (วันที่ซื้อ + จำนวนวันของแพ็กเกจ)
     const expireDate = new Date(purchaseDate);
     expireDate.setDate(expireDate.getDate() + serviceLife);
     
-    // Set expiration time to the end of that day (23:59:59)
+    // ตั้งเวลาหมดอายุเป็นสิ้นสุดวันนั้น (23:59:59) เพื่อให้สอดคล้องกับหน้า Usage
     expireDate.setHours(23, 59, 59, 999);
     
     const now = new Date();
 
-    // 3. Compare current time with expiration date
+    // 3. ตรวจสอบสถานะปัจจุบันเทียบกับเวลาจริง
     if (now > expireDate) {
-        // If current time is past expiration -> Can repurchase
+        // ถ้าเวลาปัจจุบันเลยวันหมดอายุไปแล้ว -> ซื้อใหม่ได้
         return { isActive: false };
     } else {
-        // If not yet expired -> Restrict repurchase
+        // ถ้ายังไม่ถึงวันหมดอายุ -> ห้ามซื้อซ้ำ
         return {
             isActive: true,
             expireDate: expireDate.toLocaleDateString("en-GB")
@@ -202,7 +174,6 @@ async function getPackageStatus(itemId, type) {
     }
 }
 
-/* ================= Open Purchase (ส่วนที่เรียกใช้) ================= */
 /* ================= Open Purchase Modal ================= */
 window.openPurchaseModal = async function (id, name, price, type, priceId) {
     const user = localStorage.getItem("user");
@@ -211,16 +182,16 @@ window.openPurchaseModal = async function (id, name, price, type, priceId) {
         return;
     }
 
-    // Check expiration status
+    // ตรวจสอบสถานะวันหมดอายุ
     const status = await getPackageStatus(id, type);
     
     if (status.isActive) {
-        // Notify user if the package is still active
+        // แจ้งเตือนภาษาอังกฤษ
         showAlert(`Your ${name} package is still active.\nIt will expire on: ${status.expireDate}\nPlease wait until it expires before purchasing again.`);
         return;
     }
 
-    // If expired or new (isActive: false), open the modal normally
+    // ถ้าหมดอายุแล้ว หรือไม่เคยซื้อ ให้เปิด Modal
     const modal = document.getElementById("purchaseModal");
     const details = document.getElementById("modalDetails");
 
@@ -249,7 +220,6 @@ window.closePurchaseModal = function () {
 };
 
 /* ================= Handle Purchase ================= */
-/* ================= แก้ไขฟังก์ชัน handlePurchase ใน packages-h.js ================= */
 async function handlePurchase(itemId, price, type, existingPriceId) {
     const userId = localStorage.getItem("id");
     if (!userId) return;
@@ -261,14 +231,14 @@ async function handlePurchase(itemId, price, type, existingPriceId) {
     const detailId = "D" + Math.floor(1000 + Math.random() * 9000);
 
     try {
-        // 2. บันทึกลงตาราง purchase_history โดยใช้ค่า selectedPayment
+        // 2. บันทึกลงตาราง purchase_history
         const { error: hErr } = await supabase
             .from("purchase_history")
             .insert({
                 purchase_id: purchaseId,
                 id: userId,
-                purchase_date: new Date().toISOString().split('T')[0], // ใช้ YYYY-MM-DD ตามรูป
-                payment_method: selectedPayment // <--- ใช้ค่าที่เลือกจากหน้าจอ
+                purchase_date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+                payment_method: selectedPayment
             });
 
         if (hErr) throw hErr;
@@ -290,7 +260,7 @@ async function handlePurchase(itemId, price, type, existingPriceId) {
 
     } catch (e) {
         console.error(e);
-        showAlert("เกิดข้อผิดพลาดในการทำรายการ: " + e.message);
+        showAlert("Transaction Error: " + e.message);
     }
 }
 
