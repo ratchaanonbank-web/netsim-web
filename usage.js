@@ -64,7 +64,7 @@ async function init() {
                 )
             `)
             .eq("id", userId)
-            .order("purchase_date", { ascending: true });
+            .order("purchase_date", { ascending: false });
 
         if (error) throw error;
 
@@ -361,3 +361,4 @@ window.resetDateFilter = function() {
 }
 
 init();
+
