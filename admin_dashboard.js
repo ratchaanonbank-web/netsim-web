@@ -136,7 +136,7 @@ window.viewHistory = async function(userId, email) {
             )
         `)
         .eq("id", userId) 
-        .order("purchase_date", { ascending: false });
+        .order("purchase_date", { ascending: true });
 
     if (error) { console.error(error); return; }
 
@@ -359,3 +359,4 @@ window.onclick = function(event) {
     if (event.target == roleModal) closeRoleModal();
     if (event.target == historyModal) closeHistoryModal();
 }
+
