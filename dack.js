@@ -1,31 +1,42 @@
-/* ================= Theme Toggle Logic ================= */
+/* ================= dack.js: Persistent Theme ================= */
 
-// 1. ฟังก์ชันตรวจสอบและเริ่มธีมทันที (ไม่ต้องรอ DOMContentLoaded ในส่วนของ class)
-(function initTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    // ถ้าเคยเซฟ dark ไว้ หรือถ้ายังไม่เคยเซฟแต่ในเครื่องตั้งค่า dark mode ไว้อยู่แล้ว
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+function applyTheme(theme) {
+    const btn = document.getElementById('themeToggleBtn');
+    
+    if (theme === 'dark') {
         document.body.classList.add('dark-mode');
+        if (btn) btn.innerHTML = '☀️';
+    } else {
+        document.body.classList.remove('dark-mode');
+        if (btn) btn.innerHTML = '🌙';
     }
-})();
+}
 
-// 2. อัปเดตไอคอนปุ่มเมื่อหน้าเว็บโหลดเสร็จ
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('themeToggleBtn');
-    if (btn && document.body.classList.contains('dark-mode')) {
-        btn.innerHTML = '☀️'; // ถ้าเป็น Dark Mode ให้โชว์ปุ่มพระอาทิตย์
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme) {
+        // ถ้าเคยบันทึกไว้ (ไม่ว่า light หรือ dark) ให้ใช้ค่านั้นทันที
+        applyTheme(savedTheme);
+    } else {
+        // ถ้าไม่เคยเข้าเว็บเลย ให้ดูตามระบบเครื่อง
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(systemPrefersDark ? 'dark' : 'light');
     }
-});
+}
 
-// 3. ฟังก์ชันสลับธีม (เรียกจากปุ่ม HTML)
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    const btn = document.getElementById('themeToggleBtn');
+window.toggleTheme = function() {
+    const isNowDark = document.body.classList.contains('dark-mode');
+    const newTheme = isNowDark ? 'light' : 'dark';
+    
+    // บันทึกฝังบอร์ด (LocalStorage)
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
+}
 
-    // บันทึกลง LocalStorage
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-    // เปลี่ยนไอคอน
-    if(btn) btn.innerHTML = isDark ? '☀️' : '🌙';
+// รันทันทีเพื่อให้จำค่าได้แม่นยำ
+if (document.body) {
+    initTheme();
+} else {
+    document.addEventListener('DOMContentLoaded', initTheme);
 }
