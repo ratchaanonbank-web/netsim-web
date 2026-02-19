@@ -1604,9 +1604,6 @@ body.dark-mode {
     --text-card-desc: #cccccc; /* สีเทาอ่อน เพื่อให้อ่านง่ายบนพื้นหลังดำ */
 }
 
-/* ================= Dark Mode สำหรับหน้า Login ================= */
-
-/* 1. ปรับพื้นหลังหน้า Login ให้มืดลง (หรือจะเปลี่ยนเป็นสีพื้นก็ได้) */
 body.dark-mode .login-page {
     /* ใช้ Gradient สีดำโปร่งแสงทับรูปภาพเดิม เพื่อให้รูปมืดลง */
     background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('img/slide1.jpg') no-repeat center center/cover;
@@ -2151,15 +2148,7 @@ body.dark-mode .user-table-scroll thead th {
     }
 
     /* --- 4. ปรับ Modal (Popup) --- */
-    .modal-content {
-        width: 95%;        /* ขยายเกือบเต็มจอ */
-        margin: 15% auto;  /* ขยับลงมาหน่อย */
-        padding: 15px;
-        max-height: 85vh;  /* ห้ามสูงเกินจอ */
-        overflow-y: auto;  /* ถ้าเนื้อหาเยอะให้เลื่อนได้ */
-        display: flex;
-        flex-direction: column;
-    }
+   
 
     /* จัดส่วนควบคุม History (Filter/Date) ให้เรียงลงมา */
     .history-controls {
@@ -2310,4 +2299,157 @@ body.dark-mode .user-table-scroll thead th {
         padding: 10px;
         font-size: 14px;
     }
+}
+
+/* =========================================
+   Admin Products & Modal Styles
+   ========================================= */
+.admin-box { 
+    background: rgba(0,0,0,0.6); 
+    padding: 20px; 
+    border-radius: 10px; 
+    margin-bottom: 20px; 
+}
+
+.modal { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.8); 
+    z-index: 1000; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.form-group { 
+    margin-bottom: 15px; 
+}
+
+
+.form-group label { 
+    display: block; 
+    font-weight: bold; 
+    margin-bottom: 5px; 
+}
+
+.form-group input, 
+.form-group select { 
+    width: 100%; 
+    padding: 8px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    box-sizing: border-box; 
+}
+
+
+.btn-green { 
+    background: #28a745; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+
+.btn-red { 
+    background: #dc3545; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+
+.btn-yellow { 
+    background: #fdef2e; 
+    color: black; 
+    border: none; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-weight: bold; 
+}
+
+.admin-box table td {
+    white-space: nowrap;      /* ห้ามขึ้นบรรทัดใหม่ */
+    overflow: hidden;         /* ซ่อนส่วนที่ล้น */
+    text-overflow: ellipsis;  /* ใส่ ... ถ้าข้อความยาวเกิน */
+    padding: 12px;            /* รักษาระยะห่างให้เท่าเดิม */
+}
+
+.admin-box table {
+        table-layout: fixed;
+        width: 100%;
+    }
+    .admin-box table td, .admin-box table th {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 12px;
+    }
+    .admin-box table tr {
+        height: 55px; /* ล็อคความสูงแถวให้เท่ากัน */
+    }
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    transition: background 0.3s, color 0.3s;
+}
+
+.admin-box {
+    background: var(--box-bg) !important;
+}
+
+.admin-box table {
+    background: var(--table-bg) !important;
+    color: var(--table-text) !important;
+}
+
+.modal-content {
+    background: var(--modal-bg) !important;
+    color: var(--modal-text) !important;
+}
+
+.form-group input, .form-group select {
+    background: var(--input-bg);
+    color: var(--modal-text);
+    border: 1px solid var(--border-color);
+}
+
+
+/* ===== NETSIM Color Palette ===== */
+:root {
+    /* สีกระแสหลัก (Brand Colors) */
+    --primary-color: #fdef2e;    /* เหลือง NETSIM */
+    --primary-hover: #dfd22a;
+    --secondary-color: #1f1f1f;  /* ดำ/เทาเข้ม */
+    
+    /* สถานะ (Status Colors) */
+    --color-success: #28a745;    /* เขียว - บันทึก/สำเร็จ */
+    --color-danger: #dc3545;     /* แดง - ยกเลิก/ลบ */
+    --color-warning: #fdef2e;    /* เหลือง - แก้ไข */
+    
+    /* ธีมสว่าง (Light Mode) */
+    --bg-body: #f4f4f4;
+    --bg-container: rgba(255, 255, 255, 0.95);
+    --bg-card: #ffffff;
+    --text-main: #333333;
+    --text-sub: #666666;
+    --border-color: #dddddd;
+    --input-bg: #ffffff;
+}
+
+/* ธีมมืด (Dark Mode) */
+body.dark-mode {
+    --bg-body: #121212;
+    --bg-container: rgba(0, 0, 0, 0.6);
+    --bg-card: #1e1e1e;
+    --text-main: #e0e0e0;
+    --text-sub: #aaaaaa;
+    --border-color: #1d1d1d;
+    --input-bg: #2d2d2d;
 }
