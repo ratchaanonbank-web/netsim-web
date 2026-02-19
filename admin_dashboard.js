@@ -35,8 +35,8 @@ function createDeleteModalHTML() {
                             <line x1="12" y1="8" x2="12" y2="12"></line>
                             <line x1="12" y1="16" x2="12.01" y2="16"></line>
                         </svg>
-                        <h2 style="color: #333; margin-top: 10px;">Delete User?</h2>
-                        <p id="deleteConfirmMsg" style="color: #666; font-size: 14px; margin-top: 10px;">Are you sure?</p>
+                        <h2 style="color:'var(--text-main)'; margin-top: 10px;">Delete User?</h2>
+                        <p id="deleteConfirmMsg" style="color: 'var(--text-sub)'; font-size: 14px; margin-top: 10px;">Are you sure?</p>
                     </div>
                     <div style="display: flex; justify-content: center; gap: 15px;">
                         <button onclick="closeDeleteModal()" style="padding: 10px 20px; border: 1px solid #ccc; background: #f8f9fa; color: #333; border-radius: 5px; cursor: pointer; font-weight: bold;">Cancel</button>
