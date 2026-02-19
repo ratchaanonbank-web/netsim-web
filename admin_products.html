@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NETSIM | Manage Products</title>
+    <link rel="icon" type="image/x-icon" href="img/LogoS.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="dack.js"></script> 
+</head>
+<body class="login-page">
+<header class="navbar">
+    <div class="logo" onclick="window.location.href='home.html'">
+        NET<span>SIM</span>
+    </div>
+    <button id="themeToggleBtn" class="login-btn" onclick="toggleTheme()" style="margin-left: auto; margin-right: 10px; background: transparent; border: 1px solid #fdef2e; color: #fdef2e;">
+        🌙
+    </button>
+    <div class="user-actions">
+        <div class="profile-btn" onclick="window.location.href='profile.html'">
+            <div class="profile-card">
+                <img id="profileImage" src="img/P.png" alt="Profile">
+                <h3 id="profileName"></h3>
+                <p id="profileEmail"></p>
+            </div>
+        </div>
+        
+        <button class="openbtn" onclick="openNav()">☰</button>
+    </div>
+
+    <div id="mySidepanel" class="sidepanel">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        
+        <a href="admin_dashboard.html" id="adminBtn" >Admin Dashboard</a>
+        <a href="admin_products.html" id="adminProductsBtn">Manage Products</a>
+        
+        <a href="home.html#packages">Internet Packages</a>
+        <a href="home.html#services">Entertainment Services</a>
+        <a href="usage.html">Bills and Usage</a>
+        <a href="javascript:void(0)" class="login-btn" onclick="logout()">Logout</a>
+    </div>
+</header>
+
+<div class="table-container" style="max-width: 1200px; margin: 40px auto;">
+    
+    <div class="admin-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #fdef2e; margin: 0;">Internet Packages</h2>
+            <button class="btn-green" onclick="openNetModal()">+ Add Internet Package</button>
+        </div>
+        <table style="width: 100%; table-layout: fixed; border-collapse: collapse; border-radius: 8px; overflow: hidden;">
+            <colgroup>
+                <col style="width: 10%;"> 
+                <col style="width: 25%;"> 
+                <col style="width: 15%;"> 
+                <col style="width: 20%;"> 
+                <col style="width: 15%;"> 
+                <col style="width: 15%;"> 
+            </colgroup>
+            <thead style="background: #333; color: white;">
+                <tr>
+                    <th style="padding: 12px; text-align: left;">ID</th>
+                    <th style="padding: 12px; text-align: left;">Name</th>
+                    <th style="padding: 12px; text-align: center;">Speed</th>
+                    <th style="padding: 12px; text-align: center;">Policy</th>
+                    <th style="padding: 12px; text-align: right;">Price</th>
+                    <th style="padding: 12px; text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="netTableBody">
+                <tr><td colspan="6" style="text-align:center; padding:15px;">Loading...</td></tr>
+            </tbody>
+        </table>
+        <div id="netPagination" class="pagination-container"></div>
+    </div>
+
+    <div class="admin-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #fdef2e; margin: 0;">Entertainment Services</h2>
+            <button class="btn-green" onclick="openServiceModal()">+ Add Entertainment Service</button>
+        </div>
+        <table style="width: 100%; table-layout: fixed; border-collapse: collapse; border-radius: 8px; overflow: hidden;">
+            <colgroup>
+                <col style="width: 10%;"> 
+                <col style="width: 25%;"> 
+                <col style="width: 20%;"> 
+                <col style="width: 15%;"> 
+                <col style="width: 15%;"> 
+                <col style="width: 15%;"> 
+            </colgroup>
+            <thead style="background: #333; color: white;">
+                <tr>
+                    <th style="padding: 12px; text-align: left;">ID</th>
+                    <th style="padding: 12px; text-align: left;">Service Name</th>
+                    <th style="padding: 12px; text-align: center;">Type</th>
+                    <th style="padding: 12px; text-align: center;">Duration</th>
+                    <th style="padding: 12px; text-align: right;">Price</th>
+                    <th style="padding: 12px; text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="serviceTableBody">
+                <tr><td colspan="6" style="text-align:center; padding:15px;">Loading...</td></tr>
+            </tbody>
+        </table>
+        <div id="servicePagination" class="pagination-container"></div>
+    </div>
+</div>
+
+<div id="netModal" class="modal">
+    <div class="modal-content">
+        <h2 id="netModalTitle" style="margin-top: 0; color: var(--modal-text);">Add Internet Package</h2>
+        <form id="netForm" onsubmit="saveNetPackage(event)">
+            <input type="hidden" id="netActionMode" value="add">
+            
+            <h4 style="border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">1. Package Info</h4>
+            <div class="form-group"><label>Package ID</label><input type="text" id="netPkgId" readonly style="background: var(--border-color);"></div>
+            <div class="form-group"><label>Package Name</label><input type="text" id="netPkgName" required></div>
+            <div class="form-group"><label>Max Speed (Mbps)</label><input type="number" id="netSpeed" required></div>
+            <div class="form-group"><label>Service Life (Days)</label><input type="number" id="netLife" required></div>
+            
+            <h4 style="border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">2. Usage Policy</h4>
+            <div class="form-group"><label>Policy ID</label><input type="text" id="netPolId" readonly style="background: var(--border-color);"></div>
+            <div class="form-group">
+                <label>Policy Type</label>
+                <select id="netPolType" onchange="handlePolicyChange()" required>
+                    <option value="Unlimited">Unlimited</option>
+                    <option value="FUP">FUP</option>
+                    <option value="Limited">Limited</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Data Limit (GB)</label><input type="text" id="netDataLimit" required></div>
+            <div class="form-group"><label>Speed After Limit (Mbps)</label><input type="text" id="netSpeedAfter" required></div>
+
+            <h4 style="border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">3. Pricing</h4>
+            <div class="form-group"><label>Price ID</label><input type="text" id="netPriceId" readonly style="background: var(--border-color);"></div>
+            <div class="form-group"><label>Price (THB)</label><input type="number" id="netPrice" required></div>
+
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="button" class="btn-red" onclick="closeModals()">Cancel</button>
+                <button type="submit" class="btn-green">Save Package</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="serviceModal" class="modal">
+    <div class="modal-content">
+        <h2 id="serviceModalTitle" style="margin-top: 0; color: var(--modal-text);">Add Entertainment Service</h2>
+        <form id="serviceForm" onsubmit="saveService(event)">
+            <input type="hidden" id="srvActionMode" value="add">
+            
+            <h4 style="border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Service Info</h4>
+            <div class="form-group"><label>Service ID</label><input type="text" id="srvId" readonly style="background: var(--border-color);"></div>
+            <div class="form-group"><label>Service Name</label><input type="text" id="srvName" required></div>
+            
+            <div class="form-group">
+                <label>Type</label>
+                <select id="srvType" required>
+                    <option value="Movie">Movie</option>
+                    <option value="Music">Music</option>
+                    <option value="Gaming">Gaming</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group"><label>Service Life (Days)</label><input type="number" id="srvLife" required></div>
+            
+            <h4 style="border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">Pricing</h4>
+            <div class="form-group"><label>Price ID</label><input type="text" id="srvPriceId" readonly style="background: var(--border-color);"></div>
+            <div class="form-group"><label>Price (THB)</label><input type="number" id="srvPrice" required></div>
+
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="button" class="btn-red" onclick="closeModals()">Cancel</button>
+                <button type="submit" class="btn-green">Save Service</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.1.0/dist/umd/supabase.js"></script>
+<script src="admin_products.js"></script>
+<script>
+    // ตรวจสอบสิทธิ์แบบเข้มงวด
+    (function() {
+        const userStored = localStorage.getItem("user");
+        if (!userStored) {
+            window.location.replace("login.html");
+            return;
+        }
+        const user = JSON.parse(userStored);
+        if (user.role !== 'admin' && user.role !== 'HAD') {
+            alert("Access Denied: Admins only.");
+            window.location.replace("home.html");
+        }
+    })();
+
+    function logout() { 
+        localStorage.clear(); 
+        window.location.replace("login.html"); 
+    }
+</script>
+<script type="module" src="homepro.js"></script>
+<script src="HB.js"></script> 
+<script src="home.js"></script>
+<script src="auth_monitor.js"></script>
+</body>
+</html>
