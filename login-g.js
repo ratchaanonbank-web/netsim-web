@@ -5,7 +5,9 @@
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    localStorage.clear();
+    // ✅ ลบเฉพาะข้อมูลการ Login เดิม แต่เก็บค่า Theme ไว้
+    localStorage.removeItem("user");
+    localStorage.removeItem("id");
     sessionStorage.clear();
 
     const form = document.getElementById("emailLoginForm");
