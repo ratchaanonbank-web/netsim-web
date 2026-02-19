@@ -56,7 +56,9 @@ async function init() {
         const { data: history, error } = await supabase
             .from("purchase_history")
             .select(`
+                purchase_id,
                 purchase_date,
+                payment_method,
                 purchase_detail (
                     price_logs (price),
                     internet_packages (package_name, max_speed, service_life),
@@ -207,21 +209,16 @@ function renderBillingHistory(data) {
 
         if (dailyItemCount >= heavyDayThreshold) {
             // [เงื่อนไข 1]: ถ้าวันนี้ซื้อ >= 4 ชิ้น ให้แยกเป็นหน้าเดียว
-            
-            // ถ้ามีข้อมูลค้างใน Batch ให้ปิด Batch นั้นก่อน (สร้างหน้าเก่าให้เสร็จ)
             if (currentBatch.length > 0) {
                 pages.push(currentBatch);
                 currentBatch = [];
             }
-            
-            // ใส่วันนี้เข้าไปเป็นหน้าใหม่ (หน้าเดี่ยว)
             pages.push([dateKey]);
 
         } else {
             // [เงื่อนไข 2]: วันปกติ รวมกันได้สูงสุด 3 วัน (normalDatesPerPage)
             currentBatch.push(dateKey);
 
-            // ถ้าครบ 3 วันแล้ว ให้ตัดหน้า
             if (currentBatch.length >= normalDatesPerPage) {
                 pages.push(currentBatch);
                 currentBatch = [];
@@ -229,7 +226,6 @@ function renderBillingHistory(data) {
         }
     });
 
-    // เก็บตกเศษที่เหลือลงหน้าสุดท้าย
     if (currentBatch.length > 0) {
         pages.push(currentBatch);
     }
@@ -238,7 +234,6 @@ function renderBillingHistory(data) {
     if (currentPage > totalPages) currentPage = 1;
     if (currentPage < 1) currentPage = 1;
 
-    // ดึงวันที่ที่จะแสดงในหน้านี้
     const datesToShow = pages[currentPage - 1] || [];
 
     datesToShow.forEach(dateKey => {
@@ -291,8 +286,14 @@ function renderBillingHistory(data) {
 
         tbody.innerHTML += `
             <tr style="background-color: rgba(0,0,0,0.02); font-weight: bold; border-top: 1px dashed #ccc;">
-                <td colspan="2" style="text-align: right; padding: 10px 15px;">Total :</td>
-                <td style="padding: 10px 15px; color: #ff4646; text-shadow: 0px 0px 1px #333;">${dailyTotal.toLocaleString()} THB</td>
+                <td colspan="2" style="text-align: right; padding: 10px 15px;">Daily Total :</td>
+                <td style="padding: 10px 15px; color: #ff4646; text-shadow: 0px 0px 1px #333; display: flex; align-items: center; justify-content: flex-end; gap: 15px;">
+                    ${dailyTotal.toLocaleString()} THB
+                    <button onclick="downloadDailyReceipt('${dateKey}')" 
+                            style="background-color: #fdef2e; color: #333; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        ⬇ Daily PDF
+                    </button>
+                </td>
             </tr>
             <tr style="height: 10px; border:none;"></tr> `;
     });
@@ -360,5 +361,139 @@ window.resetDateFilter = function() {
     renderBillingHistory(globalHistoryData);
 }
 
-init();
+// --- [ส่วนที่ 5] PDF Daily Receipt Generator ---
+// --- [ส่วนที่ 5] PDF Daily Receipt Generator (พิมพ์ลง PDF โดยตรง) ---
+window.downloadDailyReceipt = function(dateKey) {
+    // 1. ดึงข้อมูล User
+    const userStr = localStorage.getItem("user");
+    let userName = "Valued Customer";
+    let userEmail = "N/A";
+    
+    if (userStr) {
+        try {
+            const userObj = JSON.parse(userStr);
+            userName = (userObj.name || "") + " " + (userObj.surname || "");
+            if (userName.trim() === "") userName = "Valued Customer";
+            userEmail = userObj.email || "N/A";
+        } catch(e) {}
+    }
 
+    // 2. ดึงและกรองข้อมูลของวันนั้น
+    const dayData = globalHistoryData.filter(item => {
+        return new Date(item.purchase_date).toISOString().split('T')[0] === dateKey;
+    });
+
+    if (dayData.length === 0) return;
+
+    const displayDate = new Date(dateKey).toLocaleDateString("en-GB", {
+        day: 'numeric', month: 'long', year: 'numeric'
+    });
+    const receiptNo = "INV-" + dateKey.replace(/-/g, "");
+    
+    // 3. เตรียมข้อมูลใส่ตาราง (เพิ่ม Payment)
+    let tableData = [];
+    let grandTotal = 0;
+
+    dayData.forEach(historyItem => {
+        // ดึงวิธีจ่ายเงินของรายการนั้นๆ
+        const pMethod = historyItem.payment_method || 'N/A';
+
+        if (historyItem.purchase_detail) {
+            historyItem.purchase_detail.forEach(detail => {
+                let name = "-", price = 0;
+                if (detail.internet_packages) name = detail.internet_packages.package_name;
+                else if (detail.entertainment_services) name = detail.entertainment_services.service_name;
+                if (detail.price_logs) price = detail.price_logs.price;
+
+                grandTotal += price;
+                
+                // ✅ เพิ่ม pMethod เข้าไปเป็นคอลัมน์ที่ 2 ของตารางใน PDF
+                tableData.push([name, pMethod, Number(price).toLocaleString() + " THB"]);
+            });
+        }
+    });
+
+    // ==========================================
+    // 4. เริ่มต้นสร้าง PDF และพิมพ์ข้อความลงไปตรงๆ
+    // ==========================================
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF(); 
+
+    // ตั้งค่าฟอนต์
+    doc.setFont("helvetica");
+
+    // --- ส่วนหัว (Header) ---
+    doc.setFontSize(28);
+    doc.setTextColor(26, 26, 26);
+    doc.text("NETSIM", 105, 20, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Network Service Provider Co., Ltd.", 105, 27, { align: "center" });
+
+    doc.setFontSize(14);
+    doc.setTextColor(40, 167, 69); // สีเขียว
+    doc.text("DAILY RECEIPT / TAX INVOICE", 105, 38, { align: "center" });
+
+    // วาดเส้นคั่น
+    doc.setDrawColor(200, 200, 200);
+    doc.line(15, 45, 195, 45);
+
+    // --- ข้อมูลลูกค้า (ซ้าย) ---
+    doc.setFontSize(10);
+    doc.setTextColor(120, 120, 120);
+    doc.text("BILLED TO:", 15, 55);
+
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text(userName, 15, 62);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Email: " + userEmail, 15, 68);
+
+    // --- ข้อมูลบิล (ขวา) ---
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Receipt No: " + receiptNo, 130, 55);
+    doc.text("Date: " + displayDate, 130, 62);
+    // (เอา Payment ตรงมุมขวาบนออก เพราะย้ายมาอยู่ในตารางแล้วจะได้ไม่ซ้ำซ้อน)
+
+    // --- ✅ วาดตารางใหม่ (มี 3 คอลัมน์) ---
+    doc.autoTable({
+        startY: 75, 
+        head: [['Description', 'Payment Method', 'Amount']], // ✅ เพิ่มหัวตาราง
+        body: tableData, 
+        theme: 'striped',
+        headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontSize: 11 },
+        bodyStyles: { fontSize: 11 },
+        columnStyles: {
+            0: { cellWidth: 90 }, // ความกว้างช่องชื่อแพ็กเกจ
+            1: { halign: 'center' }, // ✅ ช่อง Payment ให้จัดกึ่งกลาง
+            2: { halign: 'right' }   // ช่องราคาจัดชิดขวา
+        }
+    });
+
+    // --- สรุปยอดรวม (ต่อจากตาราง) ---
+    let finalY = doc.lastAutoTable.finalY + 15; 
+    
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Total Paid: ", 145, finalY);
+    
+    doc.setTextColor(220, 184, 0); // สีเหลืองทอง
+    doc.setFont("helvetica", "bold");
+    doc.text(grandTotal.toLocaleString() + " THB", 195, finalY, { align: "right" });
+
+    // --- Footer ---
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    doc.text("Thank you for choosing NETSIM!", 105, 275, { align: "center" });
+    doc.text("This is a computer-generated receipt and requires no signature.", 105, 281, { align: "center" });
+
+    // 5. สั่งดาวน์โหลด
+    doc.save(`NETSIM_Daily_Receipt_${receiptNo}.pdf`);
+};
+
+init();
