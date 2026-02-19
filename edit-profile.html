@@ -6,7 +6,7 @@
     <title>Edit Profile | NETSIM</title>
     <link rel="icon" type="image/x-icon" href="img/LogoS.png">
     <link rel="stylesheet" href="style.css">
-    
+    <script src="dack.js"></script>
     <script>
         (function() {
             if (!localStorage.getItem("user")) {
@@ -32,6 +32,7 @@
                 <p id="profileEmail"></p>
             </div>
         </div>
+        
         <button class="openbtn" onclick="openNav()">☰</button>
     </div>
 
@@ -39,6 +40,7 @@
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
         
         <a href="admin_dashboard.html" id="adminBtn" style="display: none;">Admin Dashboard</a>
+        <a href="admin_products.html" id="adminProductsBtn" style="display: none;">Admin Products</a>
         
         <a href="#packages">Internet Packages</a>
         <a href="#services">Entertainment Services</a>
@@ -87,6 +89,6 @@
 <script src="HB.js"></script> 
 <script src="home.js"></script>
 <script src="auth_monitor.js"></script>
-<script src="dack.js"></script>
+
 </body>
 </html>
