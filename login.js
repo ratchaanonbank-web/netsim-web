@@ -7,7 +7,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");
     const phoneInput = document.getElementById("phone");
-    localStorage.clear();
+    // ✅ ลบเฉพาะข้อมูลการ Login เดิม แต่เก็บค่า Theme ไว้
+    localStorage.removeItem("user");
+    localStorage.removeItem("id");
     sessionStorage.clear();
 
     function showError(input, message) {
