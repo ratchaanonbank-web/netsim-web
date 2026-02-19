@@ -7,12 +7,13 @@
     <link rel="icon" type="image/x-icon" href="img/LogoS.png">
     <link rel="stylesheet" href="style.css">
     <script src="check.js"></script>
+    <script src="dack.js"></script>
 </head>
-<body>
+<body >
 
 <header class="navbar">
     <div class="logo" onclick="window.location.href='home.html'">
-        NET<span>SIM</span> Admin 
+        NET<span>SIM</span>
     </div>
     <button id="themeToggleBtn" class="login-btn" onclick="toggleTheme()" style="margin-left: auto; margin-right: 10px; background: transparent; border: 1px solid #fdef2e; color: #fdef2e;">
         🌙
@@ -25,14 +26,18 @@
                 <p id="profileEmail"></p>
             </div>
         </div>
+        
         <button class="openbtn" onclick="openNav()">☰</button>
     </div>
 
     <div id="mySidepanel" class="sidepanel">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        
         <a href="admin_dashboard.html" id="adminBtn" style="display: none;">Admin Dashboard</a>
-        <a href="home.html#packages">Internet Packages</a>
-        <a href="home.html#services">Entertainment Services</a>
+        <a href="admin_products.html" id="adminProductsBtn" style="display: none;">Admin Products</a>
+        
+        <a href="#packages">Internet Packages</a>
+        <a href="#services">Entertainment Services</a>
         <a href="usage.html">Bills and Usage</a>
         <a href="javascript:void(0)" class="login-btn" onclick="logout()">Logout</a>
     </div>
@@ -74,7 +79,7 @@
         <h2>Purchase History</h2>
         <p id="historyUserEmail" style="color: gray; margin-bottom: 10px;"></p>
         
-        <div class="history-controls" style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px; flex-wrap: wrap;">
+        <div class="history-controls">
             
             <div style="display: flex; align-items: center; gap: 5px;">
                 <label for="historySort" style="font-weight: bold; font-size: 14px;">Sort:</label>
@@ -142,7 +147,7 @@
 <script src="HB.js"></script> 
 <script src="home.js"></script>
 <script src="auth_monitor.js"></script>
-<script src="dack.js"></script>
+
 
 <script>
     function logout() {
