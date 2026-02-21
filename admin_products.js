@@ -14,7 +14,37 @@ let currentServicePage = 1;
 const style = document.createElement('style');
 document.head.appendChild(style);
 
-window.onload = loadAllData;
+// ✅ ปรับปรุง: ให้เรียกฟังก์ชันดักจับตัวเลขตอนเปิดหน้าเว็บด้วย
+window.onload = () => {
+    setupInputRestrictions();
+    loadAllData();
+};
+
+// ==========================================
+// ✅ NEW: ฟังก์ชันจำกัดให้กรอกได้แค่ตัวเลข (ห้ามติดลบ)
+// ==========================================
+function setupInputRestrictions() {
+    const numberFields = ['netSpeed', 'netLife', 'netDataLimit', 'netSpeedAfter', 'netPrice', 'srvLife', 'srvPrice'];
+    
+    numberFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', function() {
+                // ถ้าช่องถูกตั้งเป็น Unlimited หรือเป็น ReadOnly อยู่ จะไม่เข้าไปยุ่ง
+                if (this.readOnly || this.value === 'Unlimited') return;
+
+                // 1. แทนที่ตัวอักษรทุกตัวที่ไม่ใช่ 0-9 และจุดทศนิยม ด้วยความว่างเปล่า (ทำให้พิมพ์ลบ - ไม่ได้)
+                this.value = this.value.replace(/[^0-9.]/g, '');
+
+                // 2. ป้องกันการพิมพ์จุดทศนิยมซ้ำซ้อน (เช่น 10.5.2 จะกลายเป็น 10.52)
+                const parts = this.value.split('.');
+                if (parts.length > 2) {
+                    this.value = parts[0] + '.' + parts.slice(1).join('');
+                }
+            });
+        }
+    });
+}
 
 function generateId(prefix) {
     return prefix + Math.floor(1000 + Math.random() * 9000);
@@ -191,7 +221,6 @@ window.handlePolicyChange = function() {
         
         limitField.value = 'Unlimited';
         limitField.readOnly = true;
-        // 🟢 ใช้ตัวแปรสีจาก CSS แทนการระบุสีตรงๆ
         limitField.style.background = 'var(--border-color)'; 
         
         speedField.value = 'Unlimited';
@@ -203,7 +232,6 @@ window.handlePolicyChange = function() {
         
         limitField.value = '';
         limitField.readOnly = false;
-        // 🟢 ล้างค่าเพื่อให้ใช้สีพื้นหลังปกติที่ตั้งไว้ใน CSS (ซึ่งรองรับ Dark Mode อยู่แล้ว)
         limitField.style.background = 'var(--input-bg)'; 
         
         speedField.value = '';
