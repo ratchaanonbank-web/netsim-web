@@ -1068,7 +1068,7 @@ tr:hover {
 /* กล่องเนื้อหา Popup */
 .modal-content {
     background-color: #fff;
-    margin: 10% auto; /* จัดกึ่งกลางแนวตั้ง */
+    margin: 5% auto; /* จัดกึ่งกลางแนวตั้ง */
     padding: 25px;
     border-radius: 12px;
     width: 90%;
