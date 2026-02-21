@@ -2388,12 +2388,16 @@ body.dark-mode .user-table-scroll thead th {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        padding: 12px;
+        padding: 6px 10px;    /* 🟢 ลดจาก 12px เหลือ 6px (บน-ล่าง) */
+        font-size: 13.5px;    /* 🟢 ลดขนาดฟอนต์ลงเล็กน้อย */
     }
     .admin-box table tr {
-        height: 55px; /* ล็อคความสูงแถวให้เท่ากัน */
+        height: 40px;         /* 🟢 ลดความสูงแถวจาก 55px เหลือ 40px */
     }
-
+    .admin-box h2 {
+        font-size: 1.2rem;    /* ปรับหัวข้อให้เล็กลงนิดนึงเข้ากับตาราง */
+        margin-bottom: 15px !important;
+    }
 body {
     background-color: var(--bg-body);
     color: var(--text-main);
