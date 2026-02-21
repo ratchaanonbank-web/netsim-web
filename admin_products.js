@@ -14,14 +14,55 @@ let currentServicePage = 1;
 const style = document.createElement('style');
 document.head.appendChild(style);
 
-// ✅ ปรับปรุง: ให้เรียกฟังก์ชันดักจับตัวเลขตอนเปิดหน้าเว็บด้วย
 window.onload = () => {
-    setupInputRestrictions();
+    setupInputRestrictions(); 
     loadAllData();
 };
 
 // ==========================================
-// ✅ NEW: ฟังก์ชันจำกัดให้กรอกได้แค่ตัวเลข (ห้ามติดลบ)
+// ✅ NEW: ฟังก์ชันสร้าง Popup แจ้งเตือนสวยๆ
+// ==========================================
+function showPopup(message, type = 'success') {
+    let modal = document.getElementById("customAlertModal");
+    
+    // ถ้ายังไม่มี Popup ในหน้าเว็บ ให้สร้างขึ้นมาใหม่
+    if (!modal) {
+        const modalHTML = `
+            <div id="customAlertModal" class="modal" style="display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6);">
+                <div class="modal-content" style="background-color: var(--box-bg); margin: 15% auto; padding: 30px 20px; border: 1px solid var(--border-color); width: 80%; max-width: 350px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <div id="customAlertIcon" style="font-size: 50px; margin-bottom: 15px;"></div>
+                    <h2 id="customAlertTitle" style="margin-bottom: 10px; color: var(--text-main);">Notification</h2>
+                    <p id="customAlertMsg" style="margin-bottom: 25px; color: var(--text-sub); font-size: 15px;"></p>
+                    <button onclick="document.getElementById('customAlertModal').style.display='none'" style="padding: 10px 30px; background: #fdef2e; color: #111; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">OK</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        modal = document.getElementById("customAlertModal");
+    }
+
+    const icon = document.getElementById("customAlertIcon");
+    const title = document.getElementById("customAlertTitle");
+    const msg = document.getElementById("customAlertMsg");
+
+    // ตั้งค่าไอคอนและสีตามประเภท (สำเร็จ / ผิดพลาด / เตือน)
+    if (type === 'success') {
+        icon.innerHTML = "✅";
+        title.innerText = "Success!";
+    } else if (type === 'error') {
+        icon.innerHTML = "❌";
+        title.innerText = "Error!";
+    } else {
+        icon.innerHTML = "⚠️";
+        title.innerText = "Warning";
+    }
+
+    msg.innerText = message;
+    modal.style.display = "block";
+}
+
+// ==========================================
+// ฟังก์ชันจำกัดให้กรอกได้แค่ตัวเลข และดักจับค่า 0
 // ==========================================
 function setupInputRestrictions() {
     const numberFields = ['netSpeed', 'netLife', 'netDataLimit', 'netSpeedAfter', 'netPrice', 'srvLife', 'srvPrice'];
@@ -30,16 +71,29 @@ function setupInputRestrictions() {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('input', function() {
-                // ถ้าช่องถูกตั้งเป็น Unlimited หรือเป็น ReadOnly อยู่ จะไม่เข้าไปยุ่ง
                 if (this.readOnly || this.value === 'Unlimited') return;
 
-                // 1. แทนที่ตัวอักษรทุกตัวที่ไม่ใช่ 0-9 และจุดทศนิยม ด้วยความว่างเปล่า (ทำให้พิมพ์ลบ - ไม่ได้)
                 this.value = this.value.replace(/[^0-9.]/g, '');
 
-                // 2. ป้องกันการพิมพ์จุดทศนิยมซ้ำซ้อน (เช่น 10.5.2 จะกลายเป็น 10.52)
                 const parts = this.value.split('.');
                 if (parts.length > 2) {
                     this.value = parts[0] + '.' + parts.slice(1).join('');
+                }
+
+                if (this.value.length > 1 && this.value.startsWith('0') && this.value[1] !== '.') {
+                    this.value = this.value.replace(/^0+/, '');
+                }
+            });
+
+            el.addEventListener('blur', function() {
+                if (this.readOnly || this.value === 'Unlimited' || this.value === '') return;
+
+                const numVal = parseFloat(this.value);
+
+                // เปลี่ยนจากการใช้ alert ธรรมดา มาเป็น showPopup แจ้งเตือน
+                if (this.id !== 'netSpeedAfter' && numVal === 0) {
+                    this.value = ''; 
+                    showPopup("This field cannot be set to 0.", "warning");
                 }
             });
         }
@@ -90,7 +144,6 @@ function renderNetTable() {
     const startIndex = (currentNetPage - 1) * ITEMS_PER_PAGE;
     const paginatedData = netDataList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    // วาดแถวข้อมูลจริง
     paginatedData.forEach(pkg => {
         let currentPrice = 0;
         if (pkg.price_logs && pkg.price_logs.length > 0) {
@@ -115,7 +168,6 @@ function renderNetTable() {
         `;
     });
 
-    // 💡 เติมแถวว่างเพื่อให้ตารางขนาดเท่าเดิมเสมอ
     const emptyRows = ITEMS_PER_PAGE - paginatedData.length;
     for (let i = 0; i < emptyRows; i++) {
         tbody.innerHTML += `<tr><td colspan="6" style="color: transparent;">&nbsp;</td></tr>`;
@@ -165,7 +217,6 @@ function renderServiceTable() {
         `;
     });
 
-    // 💡 เติมแถวว่างเพื่อให้ตารางขนาดเท่าเดิมเสมอ
     const emptyRows = ITEMS_PER_PAGE - paginatedData.length;
     for (let i = 0; i < emptyRows; i++) {
         tbody.innerHTML += `<tr><td colspan="6" style="color: transparent;">&nbsp;</td></tr>`;
@@ -327,8 +378,10 @@ async function saveNetPackage(e) {
     const polType = document.getElementById('netPolType').value;
     const rawLimit = document.getElementById('netDataLimit').value;
     const rawSpeed = document.getElementById('netSpeedAfter').value;
+    
     const dataLimit = (rawLimit === 'Unlimited' || rawLimit === '') ? null : Number(rawLimit);
     const speedAfter = (rawSpeed === 'Unlimited' || rawSpeed === '') ? null : Number(rawSpeed);
+    
     const priceId = document.getElementById('netPriceId').value;
     const price = document.getElementById('netPrice').value;
 
@@ -336,16 +389,21 @@ async function saveNetPackage(e) {
         const policyData = { policy_id: polId, policy_type: polType, data_limit: dataLimit, speed_after_limit: speedAfter };
         await supabase.from('internet_usage_policy').upsert([policyData], { onConflict: 'policy_id' });
         const pkgData = { package_id: pkgId, package_name: pkgName, service_life: life, max_speed: maxSpeed, policy_id: polId };
+        
         if (mode === 'add') await supabase.from('internet_packages').insert([pkgData]);
         else await supabase.from('internet_packages').update(pkgData).eq('package_id', pkgId);
+        
         const dateToday = new Date().toISOString().split('T')[0];
         await supabase.from('price_logs').insert([{ price_id: priceId, package_id: pkgId, service_id: null, purchase_date: dateToday, price: price }]);
-        alert("Internet Package saved successfully!");
+        
+        // ✅ เปลี่ยนจากการใช้ alert() เป็น showPopup()
+        showPopup("Internet Package saved successfully!", "success");
         closeModals();
         await fetchInternetPackages();
     } catch (error) {
         console.error(error);
-        alert("Error saving data.");
+        // ✅ แจ้งเตือนเมื่อเกิด Error
+        showPopup("Error saving data: " + error.message, "error");
     }
 }
 
@@ -361,15 +419,20 @@ async function saveService(e) {
 
     try {
         const srvData = { service_id: srvId, service_name: srvName, service_type: srvType, service_life: srvLife };
+        
         if (mode === 'add') await supabase.from('entertainment_services').insert([srvData]);
         else await supabase.from('entertainment_services').update(srvData).eq('service_id', srvId);
+        
         const dateToday = new Date().toISOString().split('T')[0];
         await supabase.from('price_logs').insert([{ price_id: priceId, package_id: null, service_id: srvId, purchase_date: dateToday, price: price }]);
-        alert("Entertainment Service saved successfully!");
+        
+        // ✅ เปลี่ยนจากการใช้ alert() เป็น showPopup()
+        showPopup("Entertainment Service saved successfully!", "success");
         closeModals();
         await fetchServices();
     } catch (error) {
         console.error(error);
-        alert("Error saving data.");
+        // ✅ แจ้งเตือนเมื่อเกิด Error
+        showPopup("Error saving data: " + error.message, "error");
     }
 }
